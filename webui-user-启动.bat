@@ -67,7 +67,6 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1018 install error & goto :err
 echo %GN%[INFO] %WT% °²×°xformers...
 pip install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
-if errorlevel 1 set errcode=0x1019 install error & goto :err
 echo %GN%[INFO] %WT% pulling git...
 md repositories
 cd repositories
