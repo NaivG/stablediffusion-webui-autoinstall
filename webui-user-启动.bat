@@ -15,10 +15,10 @@ if errorlevel 1 set errcode=0x0001 missing python error & goto :err
 git --version
 if errorlevel 1 set errcode=0x0002 missing git error & goto :err
 echo %GN%[INFO] %WT% 检测完整性...
+if not exist installed.info goto :firstrun
 if not exist launch.py set errcode=0xA001 missing file error & goto :err
 if not exist webui.py set errcode=0xA002 missing file error & goto :err
 if not exist .\models\Stable-diffusion\*.ckpt set errcode=0xA003 missing model error & goto :err
-if not exist installed.info goto :firstrun
 if "%1"=="-update" goto :update
 :start
 echo %GN%[INFO] %WT% 尝试启动中...
@@ -45,6 +45,21 @@ goto :start
 echo %GN%[INFO] %WT% 检测安装条件...
 pip --version
 if errorlevel 1 set errcode=0x1001 missing pip error & goto :err
+echo %GN%[INFO] %WT% pulling stable-diffusion-webui[1/2]...
+git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+if errorlevel 1 (
+echo %GN%[INFO] %WT% pulling stable-diffusion-webui[2/2]...
+git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+)
+if not exist .\stable-diffusion-webui\launch.py set errcode=0xA001 missing file error & goto :err
+if not exist .\stable-diffusion-webui\webui.py set errcode=0xA002 missing file error & goto :err
+if not exist .\models\*.ckpt echo %YW%[WARN] %WT% 找不到模型文件，请稍后放置。
+if exist .\models\*.ckpt (
+   echo %YW%[WARN] %WT% 正在复制模型文件...
+   copy .\models\*.* .\stable-diffusion-webui\models\Stable-diffusion\
+)
+copy %0 .\stable-diffusion-webui\
+cd .\stable-diffusion-webui\
 echo %GN%[INFO] %WT% 尝试运行原版脚本[1/2]...
 python launch.py --exit
 if errorlevel 1 (
@@ -118,7 +133,8 @@ git clone https://ghproxy.com/https://github.com/salesforce/BLIP.git
 cd ..
 echo %GN%[INFO] %WT% 完成。
 echo 0>installed.info
-goto :start
+echo %GN%[INFO] %WT% 请进入新文件夹启动。
+goto :end
 
 :err
 echo %RD%[ERROR] %WT% 发生错误。
