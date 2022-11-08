@@ -49,7 +49,7 @@ echo %GN%[INFO] %WT% pulling stable-diffusion-webui[1/2]...
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling stable-diffusion-webui[2/2]...
-git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+git clone https://ghproxy.com/https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 )
 if not exist .\stable-diffusion-webui\launch.py set errcode=0xA001 missing file error & goto :err
 if not exist .\stable-diffusion-webui\webui.py set errcode=0xA002 missing file error & goto :err
