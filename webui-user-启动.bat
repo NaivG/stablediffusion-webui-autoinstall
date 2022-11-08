@@ -19,18 +19,27 @@ if not exist launch.py set errcode=0xA001 missing file error & goto :err
 if not exist webui.py set errcode=0xA002 missing file error & goto :err
 if not exist .\models\Stable-diffusion\*.ckpt set errcode=0xA003 missing model error & goto :err
 if not exist installed.info goto :firstrun
+if "%1"=="-update" goto :update
 :start
 echo %GN%[INFO] %WT% 尝试启动中...
-python webui.py --lowvram --precision full --no-half
+python launch.py --skip-torch-cuda-test --lowvram --precision full --no-half
+if errorlevel 1 set errcode=0x0101 running error & goto :err
 goto :end
-:err
-echo %RD%[ERROR] %WT% 发生错误。
-echo %RD%[ERROR] %WT% 错误代码：%errcode%
-:end
-echo %GN%[INFO] %WT% 已停止运行。
-echo 按任意键退出。
-pause>nul
-exit
+
+:update
+echo %GN%[INFO] %WT% 尝试更新中...
+git pull
+if errorlevel 1 (
+   echo %RD%[ERROR] %WT% 更新失败。 
+   set errcode=0X0201 update error
+   goto :err
+)
+echo %GN%[INFO] %WT% 更新成功。
+if "%2"=="-exit" (
+   echo %GN%[INFO] %WT% 因存在参数 -exit 而退出程序。
+   goto :end
+)
+goto :start
 
 :firstrun
 echo %GN%[INFO] %WT% 检测安装条件...
@@ -110,3 +119,11 @@ cd ..
 echo %GN%[INFO] %WT% 完成。
 echo 0>installed.info
 goto :start
+
+:err
+echo %RD%[ERROR] %WT% 发生错误。
+echo %RD%[ERROR] %WT% 错误代码：%errcode%
+:end
+echo %GN%[INFO] %WT% 已停止运行。
+echo 按任意键退出。
+pause>nul
