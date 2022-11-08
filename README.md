@@ -5,6 +5,7 @@ install stablediffusion-webui and run without gpu
 
 ---
 # 注意
+模型未安装前放在\models文件夹内
 国内未换源的需要把launch.py的第十五行
 
 * index_url = os.environ.get('INDEX_URL', "")
