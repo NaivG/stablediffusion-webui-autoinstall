@@ -1,5 +1,5 @@
 # stablediffusion-webui-cpuinstall
-install stablediffusion-webui and run without gpu
+auto install stablediffusion-webui and run without gpu
 
 半自动化安装stablediffusion-webui（核显版）
 
