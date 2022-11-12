@@ -14,13 +14,23 @@ python --version
 if errorlevel 1 set errcode=0x0001 missing python error & goto :err
 git --version
 if errorlevel 1 set errcode=0x0002 missing git error & goto :err
-echo %GN%[INFO] %WT% 检测完整性...
+echo %GN%[INFO] %WT% 更新脚本中...
+git pull
+if errorlevel 1 (
+echo %YW%[WARN] %WT% 更新失败。
+echo         重要：请保持你的脚本为最新。
+echo               最新版脚本全部经过稳定测试，并且拥有新功能。
+) else (
+echo %GN%[INFO] %WT% 更新成功。
+)
 if not exist installed.info goto :firstrun
+cd stable-diffusion-webui
+if "%1"=="-update" goto :update
+:start
+echo %GN%[INFO] %WT% 检测完整性...
 if not exist launch.py set errcode=0xA001 missing file error & goto :err
 if not exist webui.py set errcode=0xA002 missing file error & goto :err
 if not exist .\models\Stable-diffusion\*.ckpt set errcode=0xA003 missing model error & goto :err
-if "%1"=="-update" goto :update
-:start
 echo %GN%[INFO] %WT% 尝试启动中...
 python launch.py --skip-torch-cuda-test --lowvram --precision full --no-half
 if errorlevel 1 set errcode=0x0101 running error & goto :err
@@ -55,7 +65,7 @@ if not exist .\stable-diffusion-webui\launch.py set errcode=0xA001 missing file 
 if not exist .\stable-diffusion-webui\webui.py set errcode=0xA002 missing file error & goto :err
 if not exist .\models\*.ckpt echo %YW%[WARN] %WT% 找不到模型文件，请稍后放置。
 if exist .\models\*.ckpt (
-   echo %YW%[WARN] %WT% 正在复制模型文件...
+   echo %GN%[INFO] %WT% 正在复制模型文件...
    copy .\models\*.* .\stable-diffusion-webui\models\Stable-diffusion\
 )
 copy %0 .\stable-diffusion-webui\
@@ -132,8 +142,15 @@ git clone https://ghproxy.com/https://github.com/salesforce/BLIP.git
 )
 cd ..
 echo %GN%[INFO] %WT% 完成。
+cd ..
 echo 0>installed.info
-echo %GN%[INFO] %WT% 请进入新文件夹启动。
+echo %GN%[INFO] %WT% 是否现在启动？[Y,N]
+    choice -n -c yn >nul
+        if errorlevel == 2 goto :end
+        if errorlevel == 1 (
+		cd stable-diffusion-webui
+		goto :start
+		)
 goto :end
 
 :err
@@ -141,5 +158,13 @@ echo %RD%[ERROR] %WT% 发生错误。
 echo %RD%[ERROR] %WT% 错误代码：%errcode%
 :end
 echo %GN%[INFO] %WT% 已停止运行。
-echo 按任意键退出。
-pause>nul
+echo %GN%[INFO] %WT% 是否重启？[Y,N]
+    choice -n -c yn >nul
+        if errorlevel == 2 (
+		echo 按任意键退出。
+        pause>nul
+		goto :scriptend
+		)
+        if errorlevel == 1 goto :start
+
+:scriptend
