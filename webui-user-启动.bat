@@ -14,12 +14,18 @@ python --version
 if errorlevel 1 set errcode=0x0001 missing python error & goto :err
 git --version
 if errorlevel 1 set errcode=0x0002 missing git error & goto :err
+echo %GN%[INFO] %WT% 拉取公告...
+type notice.txt
+echo.
+if not exist notice.txt echo %YW%[WARN] %WT% 拉取失败。
+ping -n 2 127.1>nul
 echo %GN%[INFO] %WT% 更新脚本中...
 git pull
 if errorlevel 1 (
 echo %YW%[WARN] %WT% 更新失败。
 echo         重要：请保持你的脚本为最新。
 echo               最新版脚本全部经过稳定测试，并且拥有新功能。
+ping -n 3 127.1>nul
 ) else (
 echo %GN%[INFO] %WT% 更新成功。
 )
