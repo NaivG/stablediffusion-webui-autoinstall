@@ -47,7 +47,7 @@ echo %GN%[INFO] %WT% 尝试更新中...
 git pull
 if errorlevel 1 (
    echo %RD%[ERROR] %WT% 更新失败。 
-   set errcode=0X0201 update error
+   set errcode=0x0201 update error
    goto :err
 )
 echo %GN%[INFO] %WT% 更新成功。
@@ -61,6 +61,17 @@ goto :start
 echo %GN%[INFO] %WT% 检测安装条件...
 pip --version
 if errorlevel 1 set errcode=0x1001 missing pip error & goto :err
+echo %GN%[INFO] %WT% 请选择显卡版本（版本不互通）
+echo       CPU或NVIDIA选择a，AMD选择b
+    choice -n -c ab >nul
+        if errorlevel == 2 (
+          echo %GN%[INFO] %WT% 已选择AMD版本。
+          set TORCHVER=AMD
+        )
+        if errorlevel == 1 (
+          echo %GN%[INFO] %WT% 已选择CPU或NVIDIA版本。
+          set TORCHVER=NORMAL
+		  )
 echo %GN%[INFO] %WT% pulling stable-diffusion-webui[1/2]...
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 if errorlevel 1 (
@@ -100,8 +111,21 @@ echo %GN%[INFO] %WT% 安装clip...
 pip install clip -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1016 install error & goto :err
 echo %GN%[INFO] %WT% 安装pytorch...
+if "%TORCHVER%"=="NORMAL" goto :TORCHNORMAL
+if "%TORCHVER%"=="AMD" goto :TORCHAMD
+set errcode=0x1017 install error & goto :err
+
+:TORCHNORMAL
 pip install torch torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
-if errorlevel 1 set errcode=0x1017 install error & goto :err
+if errorlevel 1 set errcode=0x1017 install error on %TORCHVER% & goto :err
+goto :torchnext
+
+:TORCHAMD
+pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/rocm5.1.1
+if errorlevel 1 set errcode=0x1017 install error on %TORCHVER% & goto :err
+goto :torchnext
+
+:torchnext
 echo %GN%[INFO] %WT% 安装原版依赖...
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1018 install error & goto :err
@@ -149,7 +173,8 @@ git clone https://ghproxy.com/https://github.com/salesforce/BLIP.git
 cd ..
 echo %GN%[INFO] %WT% 完成。
 cd ..
-echo 0>installed.info
+echo [INFO]>installed.info
+echo TORCHVER=%TORCHVER%>>installed.info
 echo %GN%[INFO] %WT% 是否现在启动？[Y,N]
     choice -n -c yn >nul
         if errorlevel == 2 goto :end
@@ -164,13 +189,5 @@ echo %RD%[ERROR] %WT% 发生错误。
 echo %RD%[ERROR] %WT% 错误代码：%errcode%
 :end
 echo %GN%[INFO] %WT% 已停止运行。
-echo %GN%[INFO] %WT% 是否重启？[Y,N]
-    choice -n -c yn >nul
-        if errorlevel == 2 (
-		echo 按任意键退出。
+echo 按任意键退出。
         pause>nul
-		goto :scriptend
-		)
-        if errorlevel == 1 goto :start
-
-:scriptend
