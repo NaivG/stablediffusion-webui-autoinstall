@@ -38,7 +38,7 @@ if not exist launch.py set errcode=0xA001 missing file error & goto :err
 if not exist webui.py set errcode=0xA002 missing file error & goto :err
 if not exist .\models\Stable-diffusion\*.ckpt set errcode=0xA003 missing model error & goto :err
 echo %GN%[INFO] %WT% ≥¢ ‘∆Ù∂Ø÷–...
-python launch.py --skip-torch-cuda-test --lowvram --precision full --no-half
+python launch.py --index_url "https://pypi.tuna.tsinghua.edu.cn/simple" --skip-torch-cuda-test --lowvram --precision full --no-half
 if errorlevel 1 set errcode=0x0101 running error & goto :err
 goto :end
 
