@@ -29,7 +29,8 @@ ping -n 3 127.1>nul
 ) else (
 echo %GN%[INFO] %WT% 更新成功。
 )
-if not exist installed.info goto :firstrun
+if exist installed.info goto :firstrun
+if not exist installed.ini goto :firstrun
 cd stable-diffusion-webui
 if "%1"=="-update" goto :update
 :start
@@ -61,6 +62,7 @@ goto :start
 :firstrun
 echo %GN%[INFO] %WT% 检测安装条件...
 pip --version
+if exist installed.info del /s /q installed.info
 if errorlevel 1 set errcode=0x1001 missing pip error & goto :err
 echo %GN%[INFO] %WT% 请选择显卡版本（版本不互通）
 echo       CPU或NVIDIA选择a，AMD选择b
@@ -138,14 +140,37 @@ cd repositories
 echo %GN%[INFO] %WT% pulling DeepDanbooru...
 git clone https://ghproxy.com/https://github.com/KichangKim/DeepDanbooru.git
 cd DeepDanbooru
+echo %GN%[INFO] %WT% 尝试安装DeepDanbooru...
 python setup.py build
 python setup.py install
+cd ..
+echo %GN%[INFO] %WT% pulling open_clip...
+git clone https://ghproxy.com/https://github.com/mlfoundations/open_clip.git
+cd open_clip
+echo %GN%[INFO] %WT% 尝试安装open_clip...
+set try=1
+:openclip
+python setup.py build
+python setup.py install
+if errorlevel 1 (
+set /a try=%try%+1
+if "%try%"=="11" set errcode=0x101A install error & goto :err
+echo %YW%[WARN] %WT% 安装失败，重试安装[%try%/10]...
+ping -n 3 127.1>nul
+goto :openclip
+)
 cd ..
 echo %GN%[INFO] %WT% pulling stable-diffusion[1/2]...
 git clone https://github.com/CompVis/stable-diffusion.git
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling stable-diffusion[2/2]...
 git clone https://ghproxy.com/https://github.com/CompVis/stable-diffusion.git
+)
+echo %GN%[INFO] %WT% pulling stable-diffusion-stability-ai[1/2]...
+git clone https://github.com/Stability-AI/stablediffusion.git stable-diffusion-stability-ai
+if errorlevel 1 (
+echo %GN%[INFO] %WT% pulling stable-diffusion-stability-ai[2/2]...
+git clone https://ghproxy.com/https://github.com/Stability-AI/stablediffusion.git stable-diffusion-stability-ai
 )
 echo %GN%[INFO] %WT% pulling taming-transformers[1/2]...
 git clone https://github.com/CompVis/taming-transformers.git
@@ -174,8 +199,8 @@ git clone https://ghproxy.com/https://github.com/salesforce/BLIP.git
 cd ..
 echo %GN%[INFO] %WT% 完成。
 cd ..
-echo [INFO]>installed.info
-echo TORCHVER=%TORCHVER%>>installed.info
+echo [INFO]>installed.ini
+echo TORCHVER=%TORCHVER%>>installed.ini
 echo %GN%[INFO] %WT% 是否现在启动？[Y,N]
     choice -n -c yn >nul
         if errorlevel == 2 goto :end
