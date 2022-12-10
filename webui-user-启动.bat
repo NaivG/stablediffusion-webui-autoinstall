@@ -62,8 +62,14 @@ goto :start
 :firstrun
 echo %GN%[INFO] %WT% 检测安装条件...
 pip --version
-if exist installed.info del /s /q installed.info
 if errorlevel 1 set errcode=0x1001 missing pip error & goto :err
+if exist installed.info (
+del /s /q installed.info
+cd stable-diffusion-webui
+echo %GN%[INFO] %WT% 尝试更新中...
+git pull
+cd ..
+)
 echo %GN%[INFO] %WT% 请选择显卡版本（版本不互通）
 echo       CPU或NVIDIA选择a，AMD选择b
     choice -n -c ab >nul
