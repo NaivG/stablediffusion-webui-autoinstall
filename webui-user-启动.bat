@@ -14,11 +14,6 @@ python --version
 if errorlevel 1 set errcode=0x0001 missing python error & goto :err
 git --version
 if errorlevel 1 set errcode=0x0002 missing git error & goto :err
-echo %GN%[INFO] %WT% 拉取公告...
-type notice.txt
-echo.
-if not exist notice.txt echo %YW%[WARN] %WT% 拉取失败。
-ping -n 2 127.1>nul
 echo %GN%[INFO] %WT% 更新脚本中...
 git pull
 if errorlevel 1 (
@@ -29,6 +24,11 @@ ping -n 3 127.1>nul
 ) else (
 echo %GN%[INFO] %WT% 更新成功。
 )
+echo %GN%[INFO] %WT% 拉取公告...
+type notice.txt
+echo.
+if not exist notice.txt echo %YW%[WARN] %WT% 拉取失败。
+ping -n 2 127.1>nul
 if exist installed.info goto :firstrun
 if not exist installed.ini goto :firstrun
 echo %GN%[INFO] %WT% 检测启动参数...
