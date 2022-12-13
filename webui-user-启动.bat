@@ -31,17 +31,46 @@ echo %GN%[INFO] %WT% 更新成功。
 )
 if exist installed.info goto :firstrun
 if not exist installed.ini goto :firstrun
+echo %GN%[INFO] %WT% 检测启动参数...
+for /f "tokens=1,* delims==" %%a in ('findstr "method=" installed.ini') do (set method=%%b)
+if "%method%" neq "1" (if "%method%" neq "2" (if "%method%" neq "3" (if "%method%" neq "4" (goto :changeargs))))
+
 cd stable-diffusion-webui
 if "%1"=="-update" goto :update
+
 :start
 echo %GN%[INFO] %WT% 检测完整性...
 if not exist launch.py set errcode=0xA001 missing file error & goto :err
 if not exist webui.py set errcode=0xA002 missing file error & goto :err
 if not exist .\models\Stable-diffusion\*.ckpt set errcode=0xA003 missing model error & goto :err
+if "%method%"=="1" set ARGS=
+if "%method%"=="2" set ARGS=--precision full --no-half
+if "%method%"=="3" set ARGS=--lowvram --precision full --no-half
+if "%method%"=="4" set ARGS=--skip-torch-cuda-test --lowvram --precision full --no-half
 echo %GN%[INFO] %WT% 尝试启动中...
+
+::::::::::::::::::::::::::::::::::::::::::::::::启动参数:::::::::::::::::::::::::::::::::::::::::::::::::
+set PYTHON=
+set GIT=
+set VENV_DIR=
+set COMMANDLINE_ARGS=%ARGS%
 set INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
-python launch.py --skip-torch-cuda-test --lowvram --precision full --no-half
-if errorlevel 1 set errcode=0x0101 running error & goto :err
+:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+python launch.py
+if errorlevel 1 set errcode=0x0101 running error & goto :runerr
+goto :end
+
+:runerr
+echo %RD%[ERROR] %WT% 发生错误。
+echo %RD%[ERROR] %WT% 错误代码：%errcode%
+echo %GN%[INFO] %WT% 是否尝试更改参数？[Y,N]
+    choice -n -c yn >nul
+        if errorlevel == 2 goto :end
+        if errorlevel == 1 (
+	cd ..
+	goto :changeargs
+	)
 goto :end
 
 :update
@@ -203,10 +232,40 @@ echo %GN%[INFO] %WT% pulling BLIP[2/2]...
 git clone https://ghproxy.com/https://github.com/salesforce/BLIP.git
 )
 cd ..
-echo %GN%[INFO] %WT% 完成。
+echo %GN%[INFO] %WT% 安装完成。
 cd ..
-echo [INFO]>installed.ini
-echo TORCHVER=%TORCHVER%>>installed.ini
+:changeargs
+echo %GN%[INFO] %WT% 请选择预置启动参数
+echo       a.普通显卡（无参）
+echo       b.普通显卡（prompt无限制）
+echo       c.仅CPU，但是有显卡（4G及以下显存）
+echo       d.仅CPU
+    choice -n -c abcd >nul
+        if errorlevel == 4 (
+          echo %GN%[INFO] %WT% 已选择仅CPU。
+          set method=4
+          goto :argsnext
+)
+        if errorlevel == 3 (
+          echo %GN%[INFO] %WT% 已选择仅CPU，但是有显卡（4G及以下显存）。
+          set method=3
+          goto :argsnext
+ )
+        if errorlevel == 2 (
+          echo %GN%[INFO] %WT% 已选择普通显卡（prompt无限制）。
+          set method=2
+          goto :argsnext
+)
+        if errorlevel == 1 (
+          echo %GN%[INFO] %WT% 已选择普通显卡（无参）。
+          set method=1
+          goto :argsnext
+)
+:argsnext
+(
+echo [INFO]
+echo method=%method%
+)>installed.ini
 echo %GN%[INFO] %WT% 是否现在启动？[Y,N]
     choice -n -c yn >nul
         if errorlevel == 2 goto :end
