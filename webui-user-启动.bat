@@ -9,6 +9,7 @@ set YW=%ESC%[33m
 set BL=%ESC%[34m
 set WT=%ESC%[37m
 set RN=%ESC%[0m
+del /q tmp.bat >nul 2>nul
 echo %GN%[INFO] %WT% 检测程序运行时...
 python --version
 if errorlevel 1 goto :installpy
@@ -81,7 +82,10 @@ echo %GN%[INFO] %WT% 正在安装python...
 echo %YW%[WARN] %WT% 请等待安装完成后按任意键继续。
 software\python-installer.exe /passive AppendPath=1 PrependPath=1 InstallAllUsers=1
 pause>nul
-cmd /c start "webui-user-启动.bat"
+(
+echo @call "%0"
+)>tmp.bat
+start tmp.bat
 exit
 
 :installgit
@@ -92,7 +96,10 @@ echo %GN%[INFO] %WT% 正在安装git...
 echo %YW%[WARN] %WT% 请等待安装完成后按任意键继续。
 software\git-installer.exe /SILENT /NORESTART
 pause>nul
-cmd /c start "webui-user-启动.bat"
+(
+echo @call "%0"
+)>tmp.bat
+start tmp.bat
 exit
 
 :update
