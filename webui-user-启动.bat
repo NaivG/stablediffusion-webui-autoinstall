@@ -114,6 +114,7 @@ goto :start
 echo %GN%[INFO] %WT% 检测安装条件...
 pip --version
 if errorlevel 1 set errcode=0x1001 missing pip error & goto :err
+python --version|findstr /r /i "3.11" > NUL && echo %YW%[WARN] %WT% 你的python可能不兼容pytorch，请卸载后重新打开程序。
 if exist installed.info (
 del /s /q installed.info
 cd stable-diffusion-webui
