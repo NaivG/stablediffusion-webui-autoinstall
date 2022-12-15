@@ -28,7 +28,7 @@ echo %GN%[INFO] %WT% 拉取公告...
 type notice.txt
 echo.
 if not exist notice.txt echo %YW%[WARN] %WT% 拉取失败。
-ping -n 2 127.1>nul
+ping -n 3 127.1>nul
 if exist installed.info goto :firstrun
 if not exist installed.ini goto :firstrun
 echo %GN%[INFO] %WT% 检测启动参数...
@@ -206,6 +206,11 @@ echo %GN%[INFO] %WT% pulling open_clip...
 git clone https://ghproxy.com/https://github.com/mlfoundations/open_clip.git
 cd open_clip
 echo %GN%[INFO] %WT% 尝试安装open_clip...
+NET FILE 1>NUL 2>NUL
+if errorlevel 1 (
+echo %YW%[WARN] %WT% 未以管理员身份运行，open_clip可能安装失败。
+ping -n 3 127.1>nul
+)
 set try=1
 :openclip
 python setup.py build
