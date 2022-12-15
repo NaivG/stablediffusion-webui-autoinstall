@@ -81,7 +81,7 @@ echo %GN%[INFO] %WT% 正在安装python...
 echo %YW%[WARN] %WT% 请等待安装完成后按任意键继续。
 software\python-installer.exe /passive AppendPath=1 PrependPath=1 InstallAllUsers=1
 pause>nul
-start %0
+cmd /c start "webui-user-启动.bat"
 exit
 
 :installgit
@@ -92,7 +92,7 @@ echo %GN%[INFO] %WT% 正在安装git...
 echo %YW%[WARN] %WT% 请等待安装完成后按任意键继续。
 software\git-installer.exe /SILENT /NORESTART
 pause>nul
-start %0
+cmd /c start "webui-user-启动.bat"
 exit
 
 :update
