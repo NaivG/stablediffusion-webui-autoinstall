@@ -11,9 +11,9 @@ set WT=%ESC%[37m
 set RN=%ESC%[0m
 echo %GN%[INFO] %WT% 检测程序运行时...
 python --version
-if errorlevel 1 set errcode=0x0001 missing python error & goto :err
+if errorlevel 1 goto :installpy
 git --version
-if errorlevel 1 set errcode=0x0002 missing git error & goto :err
+if errorlevel 1 goto :installgit
 echo %GN%[INFO] %WT% 更新脚本中...
 git pull
 if errorlevel 1 (
@@ -72,6 +72,28 @@ echo %GN%[INFO] %WT% 是否尝试更改参数？[Y,N]
 	goto :changeargs
 	)
 goto :end
+
+:installpy
+md software
+echo %GN%[INFO] %WT% 正在下载python...
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out python-installer.exe https://www.python.org/ftp/python/3.11.1/python-3.11.1-amd64.exe
+echo %GN%[INFO] %WT% 正在安装python...
+echo %YW%[WARN] %WT% 请等待安装完成后按任意键继续。
+software\python-installer.exe /passive AppendPath=1 PrependPath=1 InstallAllUsers=1
+pause>nul
+start %0
+exit
+
+:installgit
+md software
+echo %GN%[INFO] %WT% 正在下载git...
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out git-installer.exe https://ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.1/Git-2.39.0-64-bit.exe
+echo %GN%[INFO] %WT% 正在安装git...
+echo %YW%[WARN] %WT% 请等待安装完成后按任意键继续。
+software\git-installer.exe /SILENT /NORESTART
+pause>nul
+start %0
+exit
 
 :update
 echo %GN%[INFO] %WT% 尝试更新中...
