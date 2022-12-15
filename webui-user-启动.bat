@@ -9,7 +9,6 @@ set YW=%ESC%[33m
 set BL=%ESC%[34m
 set WT=%ESC%[37m
 set RN=%ESC%[0m
-del /q tmp.bat >nul 2>nul
 echo %GN%[INFO] %WT% 检测程序运行时...
 python --version
 if errorlevel 1 goto :installpy
@@ -79,13 +78,10 @@ md software
 echo %GN%[INFO] %WT% 正在下载python...
 aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out python-installer.exe https://www.python.org/ftp/python/3.11.1/python-3.11.1-amd64.exe
 echo %GN%[INFO] %WT% 正在安装python...
-echo %YW%[WARN] %WT% 请等待安装完成后按任意键继续。
+echo %YW%[WARN] %WT% 请等待安装完成后重新打开程序。
 software\python-installer.exe /passive AppendPath=1 PrependPath=1 InstallAllUsers=1
+echo 按任意键退出。
 pause>nul
-(
-echo @call "%0"
-)>tmp.bat
-start tmp.bat
 exit
 
 :installgit
@@ -93,13 +89,10 @@ md software
 echo %GN%[INFO] %WT% 正在下载git...
 aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out git-installer.exe https://ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.1/Git-2.39.0-64-bit.exe
 echo %GN%[INFO] %WT% 正在安装git...
-echo %YW%[WARN] %WT% 请等待安装完成后按任意键继续。
+echo %YW%[WARN] %WT% 请等待安装完成后重新打开程序。
 software\git-installer.exe /SILENT /NORESTART
+echo 按任意键退出。
 pause>nul
-(
-echo @call "%0"
-)>tmp.bat
-start tmp.bat
 exit
 
 :update
