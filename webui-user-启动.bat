@@ -46,7 +46,7 @@ if not exist .\models\Stable-diffusion\*.ckpt set errcode=0xA003 missing model e
 if "%method%"=="1" set ARGS=
 if "%method%"=="2" set ARGS=--precision full --no-half
 if "%method%"=="3" set ARGS=--lowvram --precision full --no-half
-if "%method%"=="4" set ARGS=--skip-torch-cuda-test --lowvram --precision full --no-half
+if "%method%"=="4" set ARGS=--skip-torch-cuda-test --lowvram --precision full --no-half --disable-safe-unpickle
 echo %GN%[INFO] %WT% 尝试启动中...
 
 ::::::::::::::::::::::::::::::::::::::::::::::::启动参数:::::::::::::::::::::::::::::::::::::::::::::::::
@@ -125,16 +125,24 @@ git pull
 cd ..
 )
 echo %GN%[INFO] %WT% 请选择显卡版本（版本不互通）
-echo       CPU或NVIDIA选择a，AMD选择b
-    choice -n -c ab >nul
+echo       NVIDIA（CUDA）选择a，AMD选择b，CPU选择c
+    choice -n -c abc >nul
+        if errorlevel == 3 (
+          echo %GN%[INFO] %WT% 已选择CPU版本。
+          set TORCHVER=CPU
+		  goto :choosenext
+        )
         if errorlevel == 2 (
           echo %GN%[INFO] %WT% 已选择AMD版本。
           set TORCHVER=AMD
+		  goto :choosenext
         )
         if errorlevel == 1 (
-          echo %GN%[INFO] %WT% 已选择CPU或NVIDIA版本。
-          set TORCHVER=NORMAL
+          echo %GN%[INFO] %WT% 已选择NVIDIA（CUDA）版本。
+          set TORCHVER=NVIDIA
+		  goto :choosenext
 		  )
+:choosenext
 echo %GN%[INFO] %WT% pulling stable-diffusion-webui[1/2]...
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 if errorlevel 1 (
@@ -148,8 +156,7 @@ if exist .\models\*.ckpt (
    echo %GN%[INFO] %WT% 正在复制模型文件...
    copy .\models\*.* .\stable-diffusion-webui\models\Stable-diffusion\
 )
-copy %0 .\stable-diffusion-webui\
-cd .\stable-diffusion-webui\
+cd stable-diffusion-webui
 echo %GN%[INFO] %WT% 尝试运行原版脚本[1/2]...
 python launch.py --exit
 if errorlevel 1 (
@@ -173,25 +180,47 @@ if errorlevel 1 set errcode=0x1015 install error & goto :err
 echo %GN%[INFO] %WT% 安装clip...
 pip install clip -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1016 install error & goto :err
+echo %GN%[INFO] %WT% 安装原版依赖...
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+if errorlevel 1 set errcode=0x1017 install error & goto :err
 echo %GN%[INFO] %WT% 安装pytorch...
-if "%TORCHVER%"=="NORMAL" goto :TORCHNORMAL
+if "%TORCHVER%"=="NVIDIA" goto :TORCHNVIDIA
 if "%TORCHVER%"=="AMD" goto :TORCHAMD
+if "%TORCHVER%"=="CPU" goto :TORCHCPU
 set errcode=0x1017 install error & goto :err
 
-:TORCHNORMAL
+:TORCHNVIDIA
+echo %GN%[INFO] %WT% 检测python版本...
+python --version|findstr /r /i "3.7" > NUL && set pythonver=cp37-cp37m
+python --version|findstr /r /i "3.8" > NUL && set pythonver=cp38-cp38
+python --version|findstr /r /i "3.9" > NUL && set pythonver=cp39-cp39
+python --version|findstr /r /i "3.10" > NUL && set pythonver=cp310-cp310
+echo %GN%[INFO] %WT% python版本：%pythonver%
+echo %GN%[INFO] %WT% 检测CUDA版本...
+nvcc --version|findstr /r /i "11.6" > NUL && set cudaver=cu116
+nvcc --version|findstr /r /i "11.7" > NUL && set cudaver=cu117
+echo %GN%[INFO] %WT% CUDA版本：%cudaver%
+cd ..
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torch.whl https://download.pytorch.org/whl/%cudaver%/torch-1.13.1%%2B%cudaver%-%pythonver%-win_amd64.whl
+if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torchvision.whl https://download.pytorch.org/whl/%cudaver%/torchvision-0.14.1%%2B%cudaver%-%pythonver%-win_amd64.whl
+if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
+pip install torch.whl torchvision.whl
+if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
+cd stable-diffusion-webui
+goto :torchnext
+
+:TORCHCPU
 pip install torch torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
-if errorlevel 1 set errcode=0x1017 install error on %TORCHVER% & goto :err
+if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 goto :torchnext
 
 :TORCHAMD
 pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/rocm5.1.1
-if errorlevel 1 set errcode=0x1017 install error on %TORCHVER% & goto :err
+if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 goto :torchnext
 
 :torchnext
-echo %GN%[INFO] %WT% 安装原版依赖...
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-if errorlevel 1 set errcode=0x1018 install error & goto :err
 echo %GN%[INFO] %WT% 安装xformers...
 pip install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
 echo %GN%[INFO] %WT% pulling git...
