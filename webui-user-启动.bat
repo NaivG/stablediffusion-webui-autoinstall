@@ -157,18 +157,9 @@ if exist .\models\*.ckpt (
    copy .\models\*.* .\stable-diffusion-webui\models\Stable-diffusion\
 )
 cd stable-diffusion-webui
-echo %GN%[INFO] %WT% 尝试运行原版脚本[1/2]...
-set INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
-python launch.py --exit
-if errorlevel 1 (
-echo %GN%[INFO] %WT% 尝试运行原版脚本[2/2]...
-python launch.py --skip-torch-cuda-test --exit
-)
 echo %GN%[INFO] %WT% 更新pip,setuptools...
 python -m pip install --upgrade pip setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1011 install error & goto :err
-pip install setuptools==65 -i https://pypi.tuna.tsinghua.edu.cn/simple
-if errorlevel 1 set errcode=0x1012 install error & goto :err
 echo %GN%[INFO] %WT% 安装wheel...
 pip install wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1013 install error & goto :err
@@ -183,8 +174,14 @@ pip install clip -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1016 install error & goto :err
 echo %GN%[INFO] %WT% 安装原版依赖...
 pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1017 install error & goto :err
+echo %GN%[INFO] %WT% 尝试运行原版脚本[1/2]...
+set INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
+python launch.py --exit
+if errorlevel 1 (
+echo %GN%[INFO] %WT% 尝试运行原版脚本[2/2]...
+python launch.py --skip-torch-cuda-test --exit
+)
 echo %GN%[INFO] %WT% 安装pytorch...
 if "%TORCHVER%"=="NVIDIA" goto :TORCHNVIDIA
 if "%TORCHVER%"=="AMD" goto :TORCHAMD
