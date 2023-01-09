@@ -158,6 +158,7 @@ if exist .\models\*.ckpt (
 )
 cd stable-diffusion-webui
 echo %GN%[INFO] %WT% 尝试运行原版脚本[1/2]...
+set INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
 python launch.py --exit
 if errorlevel 1 (
 echo %GN%[INFO] %WT% 尝试运行原版脚本[2/2]...
