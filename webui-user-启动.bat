@@ -225,9 +225,9 @@ python --version|findstr /r /i "3.9" > NUL && set pythonver=cp39-cp39
 python --version|findstr /r /i "3.10" > NUL && set pythonver=cp310-cp310
 echo %GN%[INFO] %WT% python°æ±¾£º%pythonver%
 cd ..
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torch.whl https://download.pytorch.org/whl/%cudaver%/torch-1.13.1%%2Brocm5.1.1-%pythonver%-win_amd64.whl
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torch.whl https://download.pytorch.org/whl/rocm5.1.1/torch-1.13.1%%2Brocm5.1.1-%pythonver%-win_amd64.whl
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torchvision.whl https://download.pytorch.org/whl/%cudaver%/torchvision-0.14.1%%2Brocm5.1.1-%pythonver%-win_amd64.whl
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torchvision.whl https://download.pytorch.org/whl/rocm5.1.1/torchvision-0.14.1%%2Brocm5.1.1-%pythonver%-win_amd64.whl
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 pip install torch.whl torchvision.whl
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
