@@ -181,6 +181,7 @@ echo %GN%[INFO] %WT% 安装clip...
 pip install clip -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1016 install error & goto :err
 echo %GN%[INFO] %WT% 安装原版依赖...
+pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1017 install error & goto :err
 echo %GN%[INFO] %WT% 安装pytorch...
@@ -216,8 +217,20 @@ if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 goto :torchnext
 
 :TORCHAMD
-pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/rocm5.1.1
+echo %GN%[INFO] %WT% 检测python版本...
+python --version|findstr /r /i "3.7" > NUL && set pythonver=cp37-cp37m
+python --version|findstr /r /i "3.8" > NUL && set pythonver=cp38-cp38
+python --version|findstr /r /i "3.9" > NUL && set pythonver=cp39-cp39
+python --version|findstr /r /i "3.10" > NUL && set pythonver=cp310-cp310
+echo %GN%[INFO] %WT% python版本：%pythonver%
+cd ..
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torch.whl https://download.pytorch.org/whl/%cudaver%/torch-1.13.1%%2Brocm5.1.1-%pythonver%-win_amd64.whl
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torchvision.whl https://download.pytorch.org/whl/%cudaver%/torchvision-0.14.1%%2Brocm5.1.1-%pythonver%-win_amd64.whl
+if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
+pip install torch.whl torchvision.whl
+if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
+cd stable-diffusion-webui
 goto :torchnext
 
 :torchnext
