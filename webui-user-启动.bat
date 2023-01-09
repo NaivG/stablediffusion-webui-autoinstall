@@ -182,8 +182,8 @@ echo %GN%[INFO] %WT% 安装clip...
 pip install clip -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1016 install error & goto :err
 echo %GN%[INFO] %WT% 安装原版依赖...
-pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1017 install error & goto :err
 echo %GN%[INFO] %WT% 安装pytorch...
 if "%TORCHVER%"=="NVIDIA" goto :TORCHNVIDIA
