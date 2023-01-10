@@ -35,6 +35,13 @@ echo %GN%[INFO] %WT% 检测启动参数...
 for /f "tokens=1,* delims==" %%a in ('findstr "method=" installed.ini') do (set method=%%b)
 if "%method%" neq "1" (if "%method%" neq "2" (if "%method%" neq "3" (if "%method%" neq "4" (goto :changeargs))))
 
+if not exist .\stable-diffusion-webui\models\Stable-diffusion\*.ckpt (
+if exist .\models\*.ckpt (
+echo %GN%[INFO] %WT% 正在复制模型文件...
+copy .\models\*.* .\stable-diffusion-webui\models\Stable-diffusion\
+)
+)
+
 cd stable-diffusion-webui
 if "%1"=="-update" goto :update
 
