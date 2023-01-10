@@ -247,8 +247,13 @@ echo %GN%[INFO] %WT% 尝试安装DeepDanbooru...
 python setup.py build
 python setup.py install
 cd ..
+:openclip
 echo %GN%[INFO] %WT% pulling open_clip...
 git clone https://ghproxy.com/https://github.com/mlfoundations/open_clip.git
+if not exist .\open_clip\setup.py (
+rd open_clip
+goto :openclip
+)
 cd open_clip
 echo %GN%[INFO] %WT% 尝试安装open_clip...
 NET FILE 1>NUL 2>NUL
@@ -257,7 +262,7 @@ echo %YW%[WARN] %WT% 未以管理员身份运行，open_clip可能安装失败。
 ping -n 3 127.1>nul
 )
 set try=1
-:openclip
+:openclipinstall
 python setup.py build
 python setup.py install
 if errorlevel 1 (
@@ -265,7 +270,7 @@ set /a try=%try%+1
 if "%try%"=="11" set errcode=0x101A install error & goto :err
 echo %YW%[WARN] %WT% 安装失败，重试安装[%try%/10]...
 ping -n 3 127.1>nul
-goto :openclip
+goto :openclipinstall
 )
 cd ..
 echo %GN%[INFO] %WT% pulling stable-diffusion[1/2]...
