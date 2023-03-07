@@ -164,13 +164,6 @@ if exist .\models\*.ckpt (
    copy .\models\*.* .\stable-diffusion-webui\models\Stable-diffusion\
 )
 cd stable-diffusion-webui
-echo %GN%[INFO] %WT% 尝试运行原版脚本[1/2]...
-set INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
-python launch.py --exit
-if errorlevel 1 (
-echo %GN%[INFO] %WT% 尝试运行原版脚本[2/2]...
-python launch.py --skip-torch-cuda-test --exit
-)
 echo %GN%[INFO] %WT% 更新pip,setuptools...
 python -m pip install --upgrade pip setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1011 install error & goto :err
@@ -199,22 +192,12 @@ if "%TORCHVER%"=="CPU" goto :TORCHCPU
 set errcode=0x1017 install error & goto :err
 
 :TORCHNVIDIA
-echo %GN%[INFO] %WT% 检测python版本...
-python --version|findstr /r /i "3.7" > NUL && set pythonver=cp37-cp37m
-python --version|findstr /r /i "3.8" > NUL && set pythonver=cp38-cp38
-python --version|findstr /r /i "3.9" > NUL && set pythonver=cp39-cp39
-python --version|findstr /r /i "3.10" > NUL && set pythonver=cp310-cp310
-echo %GN%[INFO] %WT% python版本：%pythonver%
 echo %GN%[INFO] %WT% 检测CUDA版本...
 nvcc --version|findstr /r /i "11.6" > NUL && set cudaver=cu116
 nvcc --version|findstr /r /i "11.7" > NUL && set cudaver=cu117
 echo %GN%[INFO] %WT% CUDA版本：%cudaver%
 cd ..
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torch.whl https://download.pytorch.org/whl/%cudaver%/torch-1.13.1%%2B%cudaver%-%pythonver%-win_amd64.whl
-if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torchvision.whl https://download.pytorch.org/whl/%cudaver%/torchvision-0.14.1%%2B%cudaver%-%pythonver%-win_amd64.whl
-if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
-pip install torch.whl torchvision.whl
+pip install torch==1.13.1+%cudaver% torchvision==0.14.1+%cudaver% --extra-index-url https://download.pytorch.org/whl/%cudaver%
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 cd stable-diffusion-webui
 goto :torchnext
@@ -225,18 +208,8 @@ if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 goto :torchnext
 
 :TORCHAMD
-echo %GN%[INFO] %WT% 检测python版本...
-python --version|findstr /r /i "3.7" > NUL && set pythonver=cp37-cp37m
-python --version|findstr /r /i "3.8" > NUL && set pythonver=cp38-cp38
-python --version|findstr /r /i "3.9" > NUL && set pythonver=cp39-cp39
-python --version|findstr /r /i "3.10" > NUL && set pythonver=cp310-cp310
-echo %GN%[INFO] %WT% python版本：%pythonver%
 cd ..
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torch.whl https://download.pytorch.org/whl/rocm5.1.1/torch-1.13.1%%2Brocm5.1.1-%pythonver%-win_amd64.whl
-if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --out torchvision.whl https://download.pytorch.org/whl/rocm5.1.1/torchvision-0.14.1%%2Brocm5.1.1-%pythonver%-win_amd64.whl
-if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
-pip install torch.whl torchvision.whl
+pip install torch==1.13.1+rocm5.2 torchvision==0.14.1+rocm5.2 --extra-index-url https://download.pytorch.org/whl/rocm5.2
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 cd stable-diffusion-webui
 goto :torchnext
@@ -317,6 +290,13 @@ echo %GN%[INFO] %WT% pulling BLIP[2/2]...
 git clone https://ghproxy.com/https://github.com/salesforce/BLIP.git
 )
 cd ..
+echo %GN%[INFO] %WT% 尝试运行原版脚本[1/2]...
+set INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
+python launch.py --exit
+if errorlevel 1 (
+echo %GN%[INFO] %WT% 尝试运行原版脚本[2/2]...
+python launch.py --skip-torch-cuda-test --exit
+)
 echo %GN%[INFO] %WT% 安装完成。
 cd ..
 :changeargs
