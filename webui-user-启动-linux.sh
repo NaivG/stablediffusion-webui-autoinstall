@@ -186,12 +186,12 @@ function setup()
     "${GIT}" clone "${gitsource}/KichangKim/DeepDanbooru.git" repositories/DeepDanbooru
     cd repositories/DeepDanbooru/ || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     "${python_cmd}" setup.py build
-    "${python_cmd}" setup.py install
+    sudo "${python_cmd}" setup.py install
     cd ..
     "${GIT}" clone "${gitsource}/mlfoundations/open_clip.git" open_clip
     cd open_clip || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     "${python_cmd}" setup.py build
-    "${python_cmd}" setup.py install || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    sudo "${python_cmd}" setup.py install || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     cd ..
     cd ..
     "${GIT}" clone "${gitsource}/CompVis/stable-diffusion.git" repositories/stable-diffusion
