@@ -184,11 +184,16 @@ function setup()
     "${pip_cmd}" install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     "${pip_cmd}" install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
     "${GIT}" clone "${gitsource}/KichangKim/DeepDanbooru.git" repositories/DeepDanbooru
-    "${python_cmd}" repositories/DeepDanbooru/setup.py build
-    "${python_cmd}" repositories/DeepDanbooru/setup.py install
-    "${GIT}" clone "${gitsource}/mlfoundations/open_clip.git" repositories/open_clip
-    "${python_cmd}" repositories/open_clip/setup.py build
-    "${python_cmd}" repositories/open_clip/setup.py install || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    cd repositories/DeepDanbooru/ || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    "${python_cmd}" setup.py build
+    "${python_cmd}" setup.py install
+    cd ..
+    "${GIT}" clone "${gitsource}/mlfoundations/open_clip.git" open_clip
+    cd open_clip || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    "${python_cmd}" setup.py build
+    "${python_cmd}" setup.py install || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    cd ..
+    cd ..
     "${GIT}" clone "${gitsource}/CompVis/stable-diffusion.git" repositories/stable-diffusion
     "${GIT}" clone "${gitsource}/Stability-AI/stablediffusion.git" repositories/stable-diffusion-stability-ai
     "${GIT}" clone "${gitsource}/CompVis/taming-transformers.git" repositories/taming-transformers
