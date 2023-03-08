@@ -177,7 +177,7 @@ function setup()
         "${pip_cmd}" install torch==1.13.1+rocm5.1.1 torchvision==0.14.1+rocm5.1.1 --extra-index-url https://download.pytorch.org/whl/rocm5.1.1 || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     elif [ $torchver = "cpu" ]
     then
-        "${pip_cmd}" install torch==1.13.1+cpu torchvision==0.14.1+cpu --extra-index-url https://download.pytorch.org/whl/cpu || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+        "${pip_cmd}" install torch==1.13.1+cpu torchvision==0.14.1+cpu --extra-index-url https://download.pytorch.org/whl/cpu -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     fi
     "${pip_cmd}" install basicsr==1.4.2 --use-pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     "${pip_cmd}" install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
