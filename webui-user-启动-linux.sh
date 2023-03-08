@@ -169,9 +169,6 @@ function setup()
     "${python_cmd}" -m "${pip_cmd}" install --upgrade pip setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
     "${pip_cmd}" install wheel pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     "${pip_cmd}" install gdown clip -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
-    "${pip_cmd}" install basicsr==1.4.2 --use-pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
-    "${pip_cmd}" install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-    "${pip_cmd}" install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     if [ $torchver = "nv" ]
     then
         "${pip_cmd}" install torch==1.13.1+cu117 torchvision==0.14.1+cu117 --extra-index-url https://download.pytorch.org/whl/cu117 || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
@@ -182,6 +179,9 @@ function setup()
     then
         "${pip_cmd}" install torch==1.13.1+cpu torchvision==0.14.1+cpu --extra-index-url https://download.pytorch.org/whl/cpu || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     fi
+    "${pip_cmd}" install basicsr==1.4.2 --use-pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    "${pip_cmd}" install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+    "${pip_cmd}" install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     "${pip_cmd}" install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
     "${GIT}" clone "${gitsource}/KichangKim/DeepDanbooru.git" repositories/DeepDanbooru
     "${python_cmd}" repositories/DeepDanbooru/setup.py build
