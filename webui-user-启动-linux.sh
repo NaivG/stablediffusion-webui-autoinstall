@@ -350,7 +350,7 @@ fi
 #export PYTHON=
 #export GIT=
 #export VENV_DIR=
-#export COMMANDLINE_ARGS=$ARGS
+export COMMANDLINE_ARGS=$ARGS
 export INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
 #####################################################################
 
@@ -385,5 +385,5 @@ else
     printf "\n%s\n" "${delimiter}"
     printf "Launching launch.py..."
     printf "\n%s\n" "${delimiter}"      
-    exec "${python_cmd}" "${LAUNCH_SCRIPT}" "$ARGS" "$@"
+    exec "${python_cmd}" "${LAUNCH_SCRIPT}" "$@"
 fi
