@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 
+#some code is copied from webui.sh
+#WARN:this script tested failed on WSL.
+#     This mean i only tested install req part, not startup part. 
+#     So if u find some bugs,send it to issues.
+
 cd "${PWD}/" || { printf "\e[1m\e[31m[ERROR] \e[0mCan't cd, aborting...\n\e[0m"; exit 1; }
 
-# dialog
+# dialog config
 height=15
 width=40
 choose_height=4
@@ -73,7 +78,7 @@ function setup()
           exit 1
     esac
 
-     options=(1 "ghproxy(recommand)"
+     options=(1 "ghproxy"
               2 "official")
     choice=$(dialog --clear \
                 --backtitle "stablediffusion-webui-autoinstall" \
@@ -101,8 +106,8 @@ function setup()
           exit 1
     esac
 
-    options=(1 "NVIDIA(CUDA11)"
-             2 "AMD"
+    options=(1 "NVIDIA(CUDA11.7)"
+             2 "AMD(rocm5.1.1)"
              3 "CPU")
     choice=$(dialog --clear \
                 --backtitle "stablediffusion-webui-autoinstall" \
@@ -134,7 +139,7 @@ function setup()
           exit 1
     esac
 
-    printf "\e[1m\e[34m[INFO] \e[0mInstalling...\n"
+    printf "\e[1m\e[34m[INFO] \e[0mInstalling sdwebui...\n"
 
     if [[ -d stable-diffusion-webui ]]
     then
@@ -154,7 +159,7 @@ function setup()
     if [ -e "$file" ]
     then
         printf "\e[1m\e[34m[INFO] \e[0mcreating hard link %a to /stable-diffusion-webui/models/Stable-diffusion...\n" "$file"
-        cp -l "$file" ./stable-diffusion-webui/models/Stable-diffusion || { printf "\e[1m\e[31m[ERROR] \e[0mCan't copy, aborting...\e[0m"; exit 1; }
+        cp -l "$file" ./stable-diffusion-webui/models/Stable-diffusion || { printf "\e[1m\e[31m[ERROR] \e[0mCan't copy, aborting...\e\n[0m"; exit 1; }
     fi
     done
     cd "${clone_dir}"/ || { printf "\e[1m\e[31m[ERROR] \e[0mCan't cd to %s/, aborting...\e[0m" "${clone_dir}"; exit 1; }
@@ -163,47 +168,45 @@ function setup()
         printf "\e[1m\e[31m[ERROR] \e[0mCan't find launch script, aborting...\e[0m"
         exit 1
     fi
-    printf "\e[1m\e[34m[INFO] \e[0mrunning %a...\n" "$LAUNCH_SCRIPT"
+    #printf "\e[1m\e[34m[INFO] \e[0mrunning %a...\n" "$LAUNCH_SCRIPT"
     #"${python_cmd}" "${LAUNCH_SCRIPT}" "--exit" || "${python_cmd}" "${LAUNCH_SCRIPT}" "--skip-torch-cuda-test --exit"
     printf "\e[1m\e[34m[INFO] \e[0m Install requirements...\n"
     "${python_cmd}" -m "${pip_cmd}" install --upgrade pip setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
-    "${pip_cmd}" install wheel pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
-    "${pip_cmd}" install gdown clip -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    "${pip_cmd}" install wheel pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
+    "${pip_cmd}" install gdown clip -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
     if [ $torchver = "nv" ]
     then
-        "${pip_cmd}" install torch==1.13.1+cu117 torchvision==0.14.1+cu117 --extra-index-url https://download.pytorch.org/whl/cu117 || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+        "${pip_cmd}" install basicsr==1.4.2 torch==1.13.1+cu117 torchvision==0.14.1+cu117 xformers --extra-index-url https://download.pytorch.org/whl/cu117 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
     elif [ $torchver = "am" ]
     then
-        "${pip_cmd}" install torch==1.13.1+rocm5.1.1 torchvision==0.14.1+rocm5.1.1 --extra-index-url https://download.pytorch.org/whl/rocm5.1.1 || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+        "${pip_cmd}" install basicsr==1.4.2 torch==1.13.1+rocm5.1.1 torchvision==0.14.1+rocm5.1.1 --extra-index-url https://download.pytorch.org/whl/rocm5.1.1 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
     elif [ $torchver = "cpu" ]
     then
-        "${pip_cmd}" install torch==1.13.1+cpu torchvision==0.14.1+cpu --extra-index-url https://download.pytorch.org/whl/cpu -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+        "${pip_cmd}" install torch==1.13.1+cpu torchvision==0.14.1+cpu basicsr==1.4.2 --extra-index-url https://download.pytorch.org/whl/cpu -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
     fi
-    "${pip_cmd}" install basicsr==1.4.2 --use-pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
     "${pip_cmd}" install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-    "${pip_cmd}" install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
-    "${pip_cmd}" install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
+    "${pip_cmd}" install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
     "${GIT}" clone "${gitsource}/KichangKim/DeepDanbooru.git" repositories/DeepDanbooru
-    cd repositories/DeepDanbooru/ || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    cd repositories/DeepDanbooru/ || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
     "${python_cmd}" setup.py build
     sudo "${python_cmd}" setup.py install
     cd ..
     "${GIT}" clone "${gitsource}/mlfoundations/open_clip.git" open_clip
-    cd open_clip || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    cd open_clip || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
     "${python_cmd}" setup.py build
-    sudo "${python_cmd}" setup.py install || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e[0m"; exit 1; }
+    sudo "${python_cmd}" setup.py install || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
     cd ..
     cd ..
-    "${GIT}" clone "${gitsource}/CompVis/stable-diffusion.git" repositories/stable-diffusion
-    "${GIT}" clone "${gitsource}/Stability-AI/stablediffusion.git" repositories/stable-diffusion-stability-ai
-    "${GIT}" clone "${gitsource}/CompVis/taming-transformers.git" repositories/taming-transformers
-    "${GIT}" clone "${gitsource}/crowsonkb/k-diffusion.git" repositories/k-diffusion
-    "${GIT}" clone "${gitsource}/sczhou/CodeFormer.git" repositories/CodeFormer
-    "${GIT}" clone "${gitsource}/salesforce/BLIP.git" repositories/BLIP
+    "${GIT}" clone "${gitsource}/CompVis/stable-diffusion.git" repositories/stable-diffusion || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
+    "${GIT}" clone "${gitsource}/Stability-AI/stablediffusion.git" repositories/stable-diffusion-stability-ai || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
+    "${GIT}" clone "${gitsource}/CompVis/taming-transformers.git" repositories/taming-transformers || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
+    "${GIT}" clone "${gitsource}/crowsonkb/k-diffusion.git" repositories/k-diffusion || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
+    "${GIT}" clone "${gitsource}/sczhou/CodeFormer.git" repositories/CodeFormer || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
+    "${GIT}" clone "${gitsource}/salesforce/BLIP.git" repositories/BLIP || { printf "\e[1m\e[31m[ERROR] \e[0mInstall failed, aborting...\e\n[0m"; exit 1; }
 
     options=(1 "none"
              2 "lowvram"
-             3 "only CPU,whih gfx card output"
+             3 "only CPU,with gfx card output"
              4 "only CPU")
     choice=$(dialog --clear \
                 --backtitle "stablediffusion-webui-autoinstall" \
@@ -270,7 +273,7 @@ if [[ "$(id -u)" -eq "0" && ingone_root -eq "0" ]]
 then
     printf "\n%s\n" "${delimiter}"
     printf "Running on \e[1m\e[32m%s\e[0m user" "$(whoami)"
-    printf "\e[1m\e[33mWARN: Launched this script as root may cause bugs.\e\n[0m"
+    printf "\n\e[1m\e[33mWARN: Launched this script as root may cause bugs.\e[0m"
     printf "\n%s\n\n" "${delimiter}"
 else
     printf "\n%s\n" "${delimiter}"
@@ -309,7 +312,7 @@ fi
 if [ $installed_script = "1" ]
 then
 printf "\e[1m\e[32m[INFO] \e[0mUpdating...\n"
-"${GIT}" pull || printf "\e[1m\e[33m[WARN] \e[0mupdate failed.\n"
+"${GIT}" pull || printf "\e[1m\e[33m[WARN] \e[0mUpdate failed.\n"
 fi
 
 printf "\e[1m\e[32m[INFO] \e[0mCheck program integrity...\n"
