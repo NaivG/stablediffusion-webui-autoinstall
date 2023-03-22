@@ -220,7 +220,7 @@ if "%lng%"=="cn" (
     echo       NVIDIA（CUDA11.6或11.7）选择a，AMD选择b，CPU选择c
   ) else (
     echo %GN%[INFO] %WT% Choose gfx card version.
-    echo       A to NVIDIA(CUDA11.6 or 11.7),B to AMD(invalid),C to CPU
+    echo       A to NVIDIA[CUDA11.6 or 11.7],B to AMD[invalid],C to CPU
   )
     choice -n -c abc >nul
         if errorlevel == 3 (
@@ -397,9 +397,9 @@ if "%lng%"=="cn" (
     echo       d.仅CPU
   ) else (
     echo %GN%[INFO] %WT% Choose COMMANDLINE_ARGS
-    echo       a.gfx card(none)
-    echo       b.gfx card(no half)
-    echo       c.CPU(normally this is invalid)
+    echo       a.gfx card[none]
+    echo       b.gfx card[no half]
+    echo       c.CPU[normally this is invalid]
     echo       d.only CPU
   )
     choice -n -c abcd >nul
