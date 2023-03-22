@@ -2,6 +2,8 @@
 ::×÷ÕßÇï·çÄÏËª£¬´úÂë½ö¹©Ñ§Ï°
 title webui-user
 cd /d %~dp0
+set lng=en
+ver|findstr /r /i "°æ±¾" > NUL && set lng=cn
 set ESC=
 set RD=%ESC%[31m
 set GN=%ESC%[32m
@@ -9,35 +11,69 @@ set YW=%ESC%[33m
 set BL=%ESC%[34m
 set WT=%ESC%[37m
 set RN=%ESC%[0m
-echo %GN%[INFO] %WT% ¼ì²â³ÌÐòÔËÐÐÊ±...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ¼ì²â³ÌÐòÔËÐÐÊ±...
+  ) else (
+    echo %GN%[INFO] %WT% Check program runtime...
+  )
 python --version
 if errorlevel 1 goto :installpy
 git --version
 if errorlevel 1 goto :installgit
-echo %GN%[INFO] %WT% ¸üÐÂ½Å±¾ÖÐ...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ¸üÐÂ½Å±¾ÖÐ...
+  ) else (
+    echo %GN%[INFO] %WT% Updating script...
+  )
 git pull
 if errorlevel 1 (
-echo %YW%[WARN] %WT% ¸üÐÂÊ§°Ü¡£
-echo         ÖØÒª£ºÇë±£³ÖÄãµÄ½Å±¾Îª×îÐÂ¡£
-echo               ×îÐÂ°æ½Å±¾È«²¿¾­¹ýÎÈ¶¨²âÊÔ£¬²¢ÇÒÓµÓÐÐÂ¹¦ÄÜ¡£
+if "%lng%"=="cn" (
+    echo %YW%[WARN] %WT% ¸üÐÂÊ§°Ü¡£
+    echo         ÖØÒª£ºÇë±£³ÖÄãµÄ½Å±¾Îª×îÐÂ¡£
+    echo               ×îÐÂ°æ½Å±¾È«²¿¾­¹ýÎÈ¶¨²âÊÔ£¬²¢ÇÒÓµÓÐÐÂ¹¦ÄÜ¡£
+  ) else (
+    echo %YW%[WARN] %WT% Update failed.
+  )
 ping -n 3 127.1>nul
 ) else (
-echo %GN%[INFO] %WT% ¸üÐÂ³É¹¦¡£
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ¸üÐÂ³É¹¦¡£
+  ) else (
+    echo %GN%[INFO] %WT% Update successful.
+  )
 )
-echo %GN%[INFO] %WT% À­È¡¹«¸æ...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% À­È¡¹«¸æ...
+  ) else (
+    echo %GN%[INFO] %WT% Pulling announcement...
+  )
 type notice.txt
 echo.
-if not exist notice.txt echo %YW%[WARN] %WT% À­È¡Ê§°Ü¡£
+if not exist notice.txt (
+  if "%lng%"=="cn" (
+    echo %YW%[WARN] %WT% À­È¡Ê§°Ü¡£
+  ) else (
+    echo %YW%[WARN] %WT% Pull failed.
+  )
+)
 ping -n 3 127.1>nul
 if exist installed.info goto :firstrun
 if not exist installed.ini goto :firstrun
-echo %GN%[INFO] %WT% ¼ì²âÆô¶¯²ÎÊý...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ¼ì²âÆô¶¯²ÎÊý...
+  ) else (
+    echo %GN%[INFO] %WT% Checking COMMANDLINE_ARGS...
+  )
 for /f "tokens=1,* delims==" %%a in ('findstr "method=" installed.ini') do (set method=%%b)
 if "%method%" neq "1" (if "%method%" neq "2" (if "%method%" neq "3" (if "%method%" neq "4" (goto :changeargs))))
 
 if not exist .\stable-diffusion-webui\models\Stable-diffusion\*.ckpt (
 if exist .\models\*.ckpt (
-echo %GN%[INFO] %WT% ÕýÔÚ¸´ÖÆÄ£ÐÍÎÄ¼þ...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÕýÔÚ¸´ÖÆÄ£ÐÍÎÄ¼þ...
+  ) else (
+    echo %GN%[INFO] %WT% Copying model file...
+  )
 copy .\models\*.* .\stable-diffusion-webui\models\Stable-diffusion\
 )
 )
@@ -46,7 +82,11 @@ cd stable-diffusion-webui
 if "%1"=="-update" goto :update
 
 :start
-echo %GN%[INFO] %WT% ¼ì²âÍêÕûÐÔ...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ¼ì²âÍêÕûÐÔ...
+  ) else (
+    echo %GN%[INFO] %WT% Check program integrity...
+  )
 if not exist launch.py set errcode=0xA001 missing file error & goto :err
 if not exist webui.py set errcode=0xA002 missing file error & goto :err
 if not exist .\models\Stable-diffusion\*.ckpt set errcode=0xA003 missing model error & goto :err
@@ -54,7 +94,11 @@ if "%method%"=="1" set ARGS=
 if "%method%"=="2" set ARGS=--precision full --no-half
 if "%method%"=="3" set ARGS=--lowvram --precision full --no-half
 if "%method%"=="4" set ARGS=--skip-torch-cuda-test --lowvram --precision full --no-half --disable-safe-unpickle
-echo %GN%[INFO] %WT% ³¢ÊÔÆô¶¯ÖÐ...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ³¢ÊÔÆô¶¯ÖÐ...
+  ) else (
+    echo %GN%[INFO] %WT% launching...
+  )
 
 ::::::::::::::::::::::::::::::::::::::::::::::::Æô¶¯²ÎÊý:::::::::::::::::::::::::::::::::::::::::::::::::
 set PYTHON=
@@ -69,9 +113,15 @@ if errorlevel 1 set errcode=0x0101 running error & goto :runerr
 goto :end
 
 :runerr
-echo %RD%[ERROR] %WT% ·¢Éú´íÎó¡£
-echo %RD%[ERROR] %WT% ´íÎó´úÂë£º%errcode%
-echo %GN%[INFO] %WT% ÊÇ·ñ³¢ÊÔ¸ü¸Ä²ÎÊý£¿[Y,N]
+if "%lng%"=="cn" (
+    echo %RD%[ERROR] %WT% ·¢Éú´íÎó¡£
+    echo %RD%[ERROR] %WT% ´íÎó´úÂë£º%errcode%
+    echo %GN%[INFO] %WT% ÊÇ·ñ³¢ÊÔ¸ü¸Ä²ÎÊý£¿[Y,N]
+  ) else (
+    echo %RD%[ERROR] %WT% An error occurred.
+    echo %RD%[ERROR] %WT% Error code£º%errcode%
+    echo %GN%[INFO] %WT% Attempt to change COMMANDLINE_ARGS?[Y,N]
+  )
     choice -n -c yn >nul
         if errorlevel == 2 goto :end
         if errorlevel == 1 (
@@ -82,11 +132,26 @@ goto :end
 
 :installpy
 md software
-echo %GN%[INFO] %WT% ÕýÔÚÏÂÔØpython...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÕýÔÚÏÂÔØpython...
+  ) else (
+    echo %GN%[INFO] %WT% Downloading python...
+  )
+if exist software\python-installer.exe (
+    if not exist software\python-installer.exe.aria2 (
+       del /q software\python-installer.exe
+    )
+  )
 aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out python-installer.exe https://www.python.org/ftp/python/3.10.8/python-3.10.8-amd64.exe
-echo %GN%[INFO] %WT% ÕýÔÚ°²×°python...
-echo %YW%[WARN] %WT% ÇëµÈ´ý°²×°Íê³ÉºóÖØÐÂ´ò¿ª³ÌÐò¡£
-echo %YW%[WARN] %WT% Èô°²×°³ÌÐòÎ´ÔËÐÐ£¬´ó¸ÅÂÊÎªÏÂÔØÊ§°Ü£¬ÇëÖØÐÂ´ò¿ª³ÌÐò¡£
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÕýÔÚ°²×°python...
+    echo %YW%[WARN] %WT% ÇëµÈ´ý°²×°Íê³ÉºóÖØÐÂ´ò¿ª³ÌÐò¡£
+    echo %YW%[WARN] %WT% Èô°²×°³ÌÐòÎ´ÔËÐÐ£¬´ó¸ÅÂÊÎªÏÂÔØÊ§°Ü£¬ÇëÖØÐÂ´ò¿ª³ÌÐò¡£
+  ) else (
+    echo %GN%[INFO] %WT% Installing python...
+    echo %YW%[WARN] %WT% Please wait for the installation to complete and reopen the program.
+    echo %YW%[WARN] %WT% If the installation program is not running, the likely rate is that the download failed. Please reopen the program.
+  )
 software\python-installer.exe /passive AppendPath=1 PrependPath=1 InstallAllUsers=1
 echo °´ÈÎÒâ¼üÍË³ö¡£
 pause>nul
@@ -94,18 +159,37 @@ exit
 
 :installgit
 md software
-echo %GN%[INFO] %WT% ÕýÔÚÏÂÔØgit...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÕýÔÚÏÂÔØgit...
+  ) else (
+    echo %GN%[INFO] %WT% Downloading git...
+  )
+if exist software\git-installer.exe (
+    if not exist software\git-installer.exe.aria2 (
+       del /q software\git-installer.exe
+    )
+  )
 aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out git-installer.exe https://ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.1/Git-2.39.0-64-bit.exe
-echo %GN%[INFO] %WT% ÕýÔÚ°²×°git...
-echo %YW%[WARN] %WT% ÇëµÈ´ý°²×°Íê³ÉºóÖØÐÂ´ò¿ª³ÌÐò¡£
-echo %YW%[WARN] %WT% Èô°²×°³ÌÐòÎ´ÔËÐÐ£¬´ó¸ÅÂÊÎªÏÂÔØÊ§°Ü£¬ÇëÖØÐÂ´ò¿ª³ÌÐò¡£
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÕýÔÚ°²×°git...
+    echo %YW%[WARN] %WT% ÇëµÈ´ý°²×°Íê³ÉºóÖØÐÂ´ò¿ª³ÌÐò¡£
+    echo %YW%[WARN] %WT% Èô°²×°³ÌÐòÎ´ÔËÐÐ£¬´ó¸ÅÂÊÎªÏÂÔØÊ§°Ü£¬ÇëÖØÐÂ´ò¿ª³ÌÐò¡£
+  ) else (
+    echo %GN%[INFO] %WT% Installing git...
+    echo %YW%[WARN] %WT% Please wait for the installation to complete and reopen the program.
+    echo %YW%[WARN] %WT% If the installation program is not running, the likely rate is that the download failed. Please reopen the program.
+  )
 software\git-installer.exe /SILENT /NORESTART
 echo °´ÈÎÒâ¼üÍË³ö¡£
 pause>nul
 exit
 
 :update
-echo %GN%[INFO] %WT% ³¢ÊÔ¸üÐÂÖÐ...
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ³¢ÊÔ¸üÐÂÖÐ...
+  ) else (
+    echo %GN%[INFO] %WT% Updating sdwebui...
+  )
 git pull
 if errorlevel 1 (
    echo %RD%[ERROR] %WT% ¸üÐÂÊ§°Ü¡£ 
@@ -131,8 +215,13 @@ echo %GN%[INFO] %WT% ³¢ÊÔ¸üÐÂÖÐ...
 git pull
 cd ..
 )
-echo %GN%[INFO] %WT% ÇëÑ¡ÔñÏÔ¿¨°æ±¾£¨°æ±¾²»»¥Í¨£©
-echo       NVIDIA£¨CUDA£©Ñ¡Ôña£¬AMDÑ¡Ôñb£¬CPUÑ¡Ôñc
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÇëÑ¡ÔñÏÔ¿¨°æ±¾£¨°æ±¾²»»¥Í¨£©
+    echo       NVIDIA£¨CUDA11.6»ò11.7£©Ñ¡Ôña£¬AMDÑ¡Ôñb£¬CPUÑ¡Ôñc
+  ) else (
+    echo %GN%[INFO] %WT% Choose gfx card version.
+    echo       A to NVIDIA(CUDA11.6 or 11.7),B to AMD(invalid),C to CPU
+  )
     choice -n -c abc >nul
         if errorlevel == 3 (
           echo %GN%[INFO] %WT% ÒÑÑ¡ÔñCPU°æ±¾¡£
@@ -300,11 +389,19 @@ python launch.py --skip-torch-cuda-test --exit
 echo %GN%[INFO] %WT% °²×°Íê³É¡£
 cd ..
 :changeargs
-echo %GN%[INFO] %WT% ÇëÑ¡ÔñÔ¤ÖÃÆô¶¯²ÎÊý
-echo       a.ÆÕÍ¨ÏÔ¿¨£¨ÎÞ²Î£©
-echo       b.ÆÕÍ¨ÏÔ¿¨£¨promptÎÞÏÞÖÆ£©
-echo       c.½öCPU£¬µ«ÊÇÓÐÏÔ¿¨£¨4G¼°ÒÔÏÂÏÔ´æ£©
-echo       d.½öCPU
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÇëÑ¡ÔñÔ¤ÖÃÆô¶¯²ÎÊý
+    echo       a.ÆÕÍ¨ÏÔ¿¨£¨ÎÞ²Î£©
+    echo       b.ÆÕÍ¨ÏÔ¿¨£¨promptÎÞÏÞÖÆ£©
+    echo       c.½öCPU£¬µ«ÊÇÓÐÏÔ¿¨£¨4G¼°ÒÔÏÂÏÔ´æ£©
+    echo       d.½öCPU
+  ) else (
+    echo %GN%[INFO] %WT% Choose COMMANDLINE_ARGS
+    echo       a.gfx card(none)
+    echo       b.gfx card(no half)
+    echo       c.CPU(normally this is invalid)
+    echo       d.only CPU
+  )
     choice -n -c abcd >nul
         if errorlevel == 4 (
           echo %GN%[INFO] %WT% ÒÑÑ¡Ôñ½öCPU¡£
@@ -331,7 +428,11 @@ echo       d.½öCPU
 echo [INFO]
 echo method=%method%
 )>installed.ini
-echo %GN%[INFO] %WT% ÊÇ·ñÏÖÔÚÆô¶¯£¿[Y,N]
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÊÇ·ñÏÖÔÚÆô¶¯£¿[Y,N]
+  ) else (
+    echo %GN%[INFO] %WT% Boot sdwebui now?[Y,N]
+  )
     choice -n -c yn >nul
         if errorlevel == 2 goto :end
         if errorlevel == 1 (
@@ -341,9 +442,19 @@ echo %GN%[INFO] %WT% ÊÇ·ñÏÖÔÚÆô¶¯£¿[Y,N]
 goto :end
 
 :err
-echo %RD%[ERROR] %WT% ·¢Éú´íÎó¡£
-echo %RD%[ERROR] %WT% ´íÎó´úÂë£º%errcode%
+if "%lng%"=="cn" (
+    echo %RD%[ERROR] %WT% ·¢Éú´íÎó¡£
+    echo %RD%[ERROR] %WT% ´íÎó´úÂë£º%errcode%
+  ) else (
+    echo %RD%[ERROR] %WT% An error occurred.
+    echo %RD%[ERROR] %WT% Error code£º%errcode%
+  )
 :end
-echo %GN%[INFO] %WT% ÒÑÍ£Ö¹ÔËÐÐ¡£
-echo °´ÈÎÒâ¼üÍË³ö¡£
-        pause>nul
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ÒÑÍ£Ö¹ÔËÐÐ¡£
+    echo °´ÈÎÒâ¼üÍË³ö¡£
+  ) else (
+    echo %GN%[INFO] %WT% Stopped.
+    echo Press any key to exit.
+  )
+pause>nul
