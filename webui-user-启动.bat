@@ -4,6 +4,13 @@ title webui-user
 cd /d %~dp0
 set lng=en
 ver|findstr /r /i "∞Ê±æ" > NUL && set lng=cn
+if "%lng%"=="cn" (
+set installtext=∞≤◊∞
+set updatetext=∏¸–¬
+) else (
+set installtext=Installing
+set updatetext=Updating
+)
 set ESC=
 set RD=%ESC%[31m
 set GN=%ESC%[32m
@@ -278,24 +285,25 @@ if exist .\models\*.ckpt (
    copy .\models\*.* .\stable-diffusion-webui\models\Stable-diffusion\
 )
 cd stable-diffusion-webui
-echo %GN%[INFO] %WT% ∏¸–¬pip,setuptools...
+echo %GN%[INFO] %WT% %updatetext% pip,setuptools...
 python -m pip install --upgrade pip setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
-if errorlevel 1 set errcode=0x1011 install error & goto :err
-pip install setuptools==65 -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1012 install error & goto :err
-echo %GN%[INFO] %WT% ∞≤◊∞wheel...
+echo %GN%[INFO] %WT% %installtext% wheel...
 pip install wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1013 install error & goto :err
-echo %GN%[INFO] %WT% ∞≤◊∞pep517...
+echo %GN%[INFO] %WT% %installtext% pep517...
 pip install pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1014 install error & goto :err
-echo %GN%[INFO] %WT% ∞≤◊∞gdown...
+echo %GN%[INFO] %WT% %installtext% gdown...
 pip install gdown -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1015 install error & goto :err
-echo %GN%[INFO] %WT% ∞≤◊∞clip...
+echo %GN%[INFO] %WT% %installtext% clip...
 pip install clip -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1016 install error & goto :err
-echo %GN%[INFO] %WT% ∞≤◊∞pytorch...
+echo %GN%[INFO] %WT% %installtext% gradio3.23...
+pip install gradio==3.23 -i https://mirror.baidu.com/pypi/simple
+if errorlevel 1 set errcode=0x1101 install error & goto :err
+echo %GN%[INFO] %WT% %installtext% pytorch...
 if "%TORCHVER%"=="NVIDIA" goto :TORCHNVIDIA
 if "%TORCHVER%"=="AMD" goto :TORCHAMD
 if "%TORCHVER%"=="CPU" goto :TORCHCPU
@@ -325,11 +333,11 @@ cd stable-diffusion-webui
 goto :torchnext
 
 :torchnext
-echo %GN%[INFO] %WT% ∞≤◊∞‘≠∞Ê“¿¿µ...
+echo %GN%[INFO] %WT% %installtext% ‘≠∞Ê“¿¿µ...
 pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1017 install error & goto :err
-echo %GN%[INFO] %WT% ∞≤◊∞xformers...
+echo %GN%[INFO] %WT% %installtext% xformers...
 pip install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
 echo %GN%[INFO] %WT% pulling git...
 md repositories
@@ -337,7 +345,7 @@ cd repositories
 echo %GN%[INFO] %WT% pulling DeepDanbooru...
 git clone https://ghproxy.com/https://github.com/KichangKim/DeepDanbooru.git
 cd DeepDanbooru
-echo %GN%[INFO] %WT% ≥¢ ‘∞≤◊∞DeepDanbooru...
+echo %GN%[INFO] %WT% %installtext% DeepDanbooru...
 python setup.py build
 python setup.py install
 cd ..
@@ -349,7 +357,7 @@ rd open_clip
 goto :openclip
 )
 cd open_clip
-echo %GN%[INFO] %WT% ≥¢ ‘∞≤◊∞open_clip...
+echo %GN%[INFO] %WT% %installtext% open_clip...
 NET FILE 1>NUL 2>NUL
 if errorlevel 1 (
 echo %YW%[WARN] %WT% Œ¥“‘π‹¿Ì‘±…Ì∑›‘À––£¨open_clipø…ƒ‹∞≤◊∞ ß∞‹°£
@@ -411,7 +419,11 @@ if errorlevel 1 (
 echo %GN%[INFO] %WT% ≥¢ ‘‘À––‘≠∞ÊΩ≈±æ[2/2]...
 python launch.py --skip-torch-cuda-test --exit
 )
-echo %GN%[INFO] %WT% ∞≤◊∞ÕÍ≥…°£
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% ∞≤◊∞ÕÍ≥…°£
+  ) else (
+    echo %GN%[INFO] %WT% Done!
+  )
 cd ..
 :changeargs
 if "%lng%"=="cn" (
