@@ -57,6 +57,16 @@ if not exist notice.txt (
   )
 )
 ping -n 3 127.1>nul
+
+if exist venv\Scripts\activate.bat (
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% 启用python venv...
+  ) else (
+    echo %GN%[INFO] %WT% Activating python venv...
+  )
+call venv\Scripts\activate.bat
+)
+
 if exist installed.info goto :firstrun
 if not exist installed.ini goto :firstrun
 if "%lng%"=="cn" (
@@ -270,10 +280,6 @@ if errorlevel 1 set errcode=0x1015 install error & goto :err
 echo %GN%[INFO] %WT% 安装clip...
 pip install clip -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1016 install error & goto :err
-echo %GN%[INFO] %WT% 安装原版依赖...
-pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-if errorlevel 1 set errcode=0x1017 install error & goto :err
 echo %GN%[INFO] %WT% 安装pytorch...
 if "%TORCHVER%"=="NVIDIA" goto :TORCHNVIDIA
 if "%TORCHVER%"=="AMD" goto :TORCHAMD
@@ -304,6 +310,10 @@ cd stable-diffusion-webui
 goto :torchnext
 
 :torchnext
+echo %GN%[INFO] %WT% 安装原版依赖...
+pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+if errorlevel 1 set errcode=0x1017 install error & goto :err
 echo %GN%[INFO] %WT% 安装xformers...
 pip install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
 echo %GN%[INFO] %WT% pulling git...
@@ -388,6 +398,20 @@ python launch.py --skip-torch-cuda-test --exit
 )
 echo %GN%[INFO] %WT% 安装完成。
 cd ..
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% 是否启用python venv？[Y/N]
+  ) else (
+    echo %GN%[INFO] %WT% Activate python venv?[Y/N]
+  )
+choice -n -c ny >nul
+if errorlevel == 2 (
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% 创建python venv...
+  ) else (
+    echo %GN%[INFO] %WT% Creating python venv...
+  )
+  python -m venv venv
+)
 :changeargs
 if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% 请选择预置启动参数
@@ -450,6 +474,13 @@ if "%lng%"=="cn" (
     echo %RD%[ERROR] %WT% Error code：%errcode%
   )
 :end
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% 禁用python venv...
+  ) else (
+    echo %GN%[INFO] %WT% Deactivating python venv...
+  )
+if exist venv\Scripts\deactivate.bat call venv\Scripts\deactivate.bat
+
 if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% 已停止运行。
     echo 按任意键退出。
