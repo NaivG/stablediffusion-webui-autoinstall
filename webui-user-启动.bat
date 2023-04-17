@@ -473,7 +473,10 @@ if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% Boot sdwebui now?[Y,N]
   )
     choice -n -c yn >nul
-        if errorlevel == 2 goto :end
+        if errorlevel == 2 (
+		cd ..
+		goto :end
+		)
         if errorlevel == 1 (
 		cd stable-diffusion-webui
 		goto :start
