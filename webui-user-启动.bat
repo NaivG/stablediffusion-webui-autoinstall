@@ -218,6 +218,21 @@ echo %GN%[INFO] %WT% 检测安装条件...
 pip --version
 if errorlevel 1 set errcode=0x1001 missing pip error & goto :err
 python --version|findstr /r /i "3.11" > NUL && echo %YW%[WARN] %WT% 你的python可能不兼容pytorch，请卸载后重新打开程序。
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% 是否启用python venv？[Y/N]
+  ) else (
+    echo %GN%[INFO] %WT% Activate python venv?[Y/N]
+  )
+choice -n -c ny >nul
+if errorlevel == 2 (
+if "%lng%"=="cn" (
+    echo %GN%[INFO] %WT% 创建python venv...
+  ) else (
+    echo %GN%[INFO] %WT% Creating python venv...
+  )
+  python -m venv venv
+  call venv\Scripts\activate.bat
+)
 if exist installed.info (
 del /s /q installed.info
 cd stable-diffusion-webui
@@ -398,20 +413,6 @@ python launch.py --skip-torch-cuda-test --exit
 )
 echo %GN%[INFO] %WT% 安装完成。
 cd ..
-if "%lng%"=="cn" (
-    echo %GN%[INFO] %WT% 是否启用python venv？[Y/N]
-  ) else (
-    echo %GN%[INFO] %WT% Activate python venv?[Y/N]
-  )
-choice -n -c ny >nul
-if errorlevel == 2 (
-if "%lng%"=="cn" (
-    echo %GN%[INFO] %WT% 创建python venv...
-  ) else (
-    echo %GN%[INFO] %WT% Creating python venv...
-  )
-  python -m venv venv
-)
 :changeargs
 if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% 请选择预置启动参数
