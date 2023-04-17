@@ -106,7 +106,7 @@ if "%lng%"=="cn" (
   )
 if not exist launch.py set errcode=0xA001 missing file error & goto :err
 if not exist webui.py set errcode=0xA002 missing file error & goto :err
-if not exist .\models\Stable-diffusion\*.ckpt set errcode=0xA003 missing model error & goto :err
+if not exist .\models\Stable-diffusion\*.ckpt (if not exist .\models\Stable-diffusion\*.safetensors (set errcode=0xA003 missing model error & goto :err))
 if "%method%"=="1" set ARGS=
 if "%method%"=="2" set ARGS=--precision full --no-half
 if "%method%"=="3" set ARGS=--lowvram --precision full --no-half
@@ -127,6 +127,7 @@ set INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
 
 python launch.py
 if errorlevel 1 set errcode=0x0101 running error & goto :runerr
+cd ..
 goto :end
 
 :runerr
@@ -216,6 +217,7 @@ if errorlevel 1 (
 echo %GN%[INFO] %WT% 更新成功。
 if "%2"=="-exit" (
    echo %GN%[INFO] %WT% 因存在参数 -exit 而退出程序。
+   cd ..
    goto :end
 )
 goto :start
@@ -486,6 +488,7 @@ if "%lng%"=="cn" (
     echo %RD%[ERROR] %WT% An error occurred.
     echo %RD%[ERROR] %WT% Error code：%errcode%
   )
+cd ..
 :end
 if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% 禁用python venv...
