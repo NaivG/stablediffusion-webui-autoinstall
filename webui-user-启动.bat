@@ -305,6 +305,8 @@ if errorlevel 1 set errcode=0x1016 install error & goto :err
 echo %GN%[INFO] %WT% %installtext% gradio3.23...
 pip install gradio==3.23 -i https://mirror.baidu.com/pypi/simple
 if errorlevel 1 set errcode=0x1101 install error & goto :err
+echo %GN%[INFO] %WT% %installtext% xformers...
+pip install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
 echo %GN%[INFO] %WT% %installtext% pytorch...
 if "%TORCHVER%"=="NVIDIA" goto :TORCHNVIDIA
 if "%TORCHVER%"=="AMD" goto :TORCHAMD
@@ -336,11 +338,11 @@ goto :torchnext
 
 :torchnext
 echo %GN%[INFO] %WT% %installtext% ‘≠∞Ê“¿¿µ...
+pip install tb-nightly -i https://mirror.baidu.com/pypi/simple
+pip install basicsr==1.4.2 -i https://mirror.baidu.com/pypi/simple
 pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 if errorlevel 1 set errcode=0x1017 install error & goto :err
-echo %GN%[INFO] %WT% %installtext% xformers...
-pip install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
 echo %GN%[INFO] %WT% pulling git...
 md repositories
 cd repositories
