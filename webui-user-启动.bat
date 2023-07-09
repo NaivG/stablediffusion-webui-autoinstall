@@ -251,10 +251,10 @@ cd ..
 )
 if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% 请选择显卡版本（版本不互通）
-    echo       NVIDIA（CUDA11.6或11.7）选择a，AMD选择b，CPU选择c
+    echo       NVIDIA（CUDA11）选择a，AMD选择b，CPU选择c
   ) else (
     echo %GN%[INFO] %WT% Choose gfx card version.
-    echo       A to NVIDIA[CUDA11.6 or 11.7],B to AMD[invalid],C to CPU
+    echo       A to NVIDIA[CUDA11],B to AMD[invalid],C to CPU
   )
     choice -n -c abc >nul
         if errorlevel == 3 (
@@ -305,8 +305,6 @@ if errorlevel 1 set errcode=0x1016 install error & goto :err
 echo %GN%[INFO] %WT% %installtext% gradio3.23...
 pip install gradio==3.23 -i https://mirror.baidu.com/pypi/simple
 if errorlevel 1 set errcode=0x1101 install error & goto :err
-echo %GN%[INFO] %WT% %installtext% xformers...
-pip install xformers -i https://pypi.tuna.tsinghua.edu.cn/simple
 echo %GN%[INFO] %WT% %installtext% pytorch...
 if "%TORCHVER%"=="NVIDIA" goto :TORCHNVIDIA
 if "%TORCHVER%"=="AMD" goto :TORCHAMD
@@ -317,10 +315,16 @@ set errcode=0x1017 install error & goto :err
 echo %GN%[INFO] %WT% 检测CUDA版本...
 nvcc --version|findstr /r /i "11.6" > NUL && set cudaver=cu116
 nvcc --version|findstr /r /i "11.7" > NUL && set cudaver=cu117
+nvcc --version|findstr /r /i "11.8" > NUL && set cudaver=cu118
+nvcc --version|findstr /r /i "12.0" > NUL && set cudaver=cu120
 echo %GN%[INFO] %WT% CUDA版本：%cudaver%
 cd ..
-pip install torch==1.13.1+%cudaver% torchvision==0.14.1+%cudaver% --extra-index-url https://download.pytorch.org/whl/%cudaver%
+pip install torch==2.0.1+%cudaver% torchvision --extra-index-url https://download.pytorch.org/whl/%cudaver%
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
+if "%cudaver%"=="cu118" (
+  echo %GN%[INFO] %WT% %installtext% xformers...
+  pip install xformers==0.0.17 -i https://pypi.tuna.tsinghua.edu.cn/simple
+)
 cd stable-diffusion-webui
 goto :torchnext
 
