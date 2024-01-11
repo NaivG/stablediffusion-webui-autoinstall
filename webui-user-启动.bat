@@ -187,7 +187,7 @@ if exist software\git-installer.exe (
        del /q software\git-installer.exe
     )
   )
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out git-installer.exe https://ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.1/Git-2.39.0-64-bit.exe
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out git-installer.exe https://mirror.ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.1/Git-2.39.0-64-bit.exe
 if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% 正在安装git...
     echo %YW%[WARN] %WT% 请等待安装完成后重新打开程序。
@@ -277,7 +277,7 @@ echo %GN%[INFO] %WT% pulling stable-diffusion-webui[1/2]...
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling stable-diffusion-webui[2/2]...
-git clone https://ghproxy.com/https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+git clone https://mirror.ghproxy.com/https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 )
 if not exist .\stable-diffusion-webui\launch.py set errcode=0xA001 missing file error & goto :err
 if not exist .\stable-diffusion-webui\webui.py set errcode=0xA002 missing file error & goto :err
@@ -351,7 +351,7 @@ echo %GN%[INFO] %WT% pulling git...
 md repositories
 cd repositories
 echo %GN%[INFO] %WT% pulling DeepDanbooru...
-git clone https://ghproxy.com/https://github.com/KichangKim/DeepDanbooru.git
+git clone https://mirror.ghproxy.com/https://github.com/KichangKim/DeepDanbooru.git
 cd DeepDanbooru
 echo %GN%[INFO] %WT% %installtext% DeepDanbooru...
 python setup.py build
@@ -359,7 +359,7 @@ python setup.py install
 cd ..
 :openclip
 echo %GN%[INFO] %WT% pulling open_clip...
-git clone https://ghproxy.com/https://github.com/mlfoundations/open_clip.git
+git clone https://mirror.ghproxy.com/https://github.com/mlfoundations/open_clip.git
 if not exist .\open_clip\setup.py (
 rd open_clip
 goto :openclip
@@ -387,37 +387,37 @@ echo %GN%[INFO] %WT% pulling stable-diffusion[1/2]...
 git clone https://github.com/CompVis/stable-diffusion.git
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling stable-diffusion[2/2]...
-git clone https://ghproxy.com/https://github.com/CompVis/stable-diffusion.git
+git clone https://mirror.ghproxy.com/https://github.com/CompVis/stable-diffusion.git
 )
 echo %GN%[INFO] %WT% pulling stable-diffusion-stability-ai[1/2]...
 git clone https://github.com/Stability-AI/stablediffusion.git stable-diffusion-stability-ai
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling stable-diffusion-stability-ai[2/2]...
-git clone https://ghproxy.com/https://github.com/Stability-AI/stablediffusion.git stable-diffusion-stability-ai
+git clone https://mirror.ghproxy.com/https://github.com/Stability-AI/stablediffusion.git stable-diffusion-stability-ai
 )
 echo %GN%[INFO] %WT% pulling taming-transformers[1/2]...
 git clone https://github.com/CompVis/taming-transformers.git
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling taming-transformers[2/2]...
-git clone https://ghproxy.com/https://github.com/CompVis/taming-transformers.git
+git clone https://mirror.ghproxy.com/https://github.com/CompVis/taming-transformers.git
 )
 echo %GN%[INFO] %WT% pulling k-diffusion[1/2]...
 git clone https://github.com/crowsonkb/k-diffusion.git
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling k-diffusion[2/2]...
-git clone https://ghproxy.com/https://github.com/crowsonkb/k-diffusion.git
+git clone https://mirror.ghproxy.com/https://github.com/crowsonkb/k-diffusion.git
 )
 echo %GN%[INFO] %WT% pulling CodeFormer[1/2]...
 git clone https://github.com/sczhou/CodeFormer.git
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling CodeFormer[2/2]...
-git clone https://ghproxy.com/https://github.com/sczhou/CodeFormer.git
+git clone https://mirror.ghproxy.com/https://github.com/sczhou/CodeFormer.git
 )
 echo %GN%[INFO] %WT% pulling BLIP[1/2]...
 git clone https://github.com/salesforce/BLIP.git
 if errorlevel 1 (
 echo %GN%[INFO] %WT% pulling BLIP[2/2]...
-git clone https://ghproxy.com/https://github.com/salesforce/BLIP.git
+git clone https://mirror.ghproxy.com/https://github.com/salesforce/BLIP.git
 )
 cd ..
 echo %GN%[INFO] %WT% 尝试运行原版脚本[1/2]...

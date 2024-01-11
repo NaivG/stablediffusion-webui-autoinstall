@@ -91,7 +91,7 @@ function setup()
     case $choice in
         1)
          echo 1
-         gitsource=https://ghproxy.com/https://github.com
+         gitsource=https://mirror.ghproxy.com/https://github.com
          ;;
         2)
          echo 2
@@ -151,7 +151,7 @@ function setup()
         printf "\n%s\n" "${delimiter}"
         printf "Clone stable-diffusion-webui"
         printf "\n%s\n" "${delimiter}"
-        "${GIT}" clone "${gitsource}/AUTOMATIC1111/stable-diffusion-webui.git" "${clone_dir}" || { "${GIT}" clone https://ghproxy.com/https://github.com/AUTOMATIC1111/stable-diffusion-webui.git "${clone_dir}"; }
+        "${GIT}" clone "${gitsource}/AUTOMATIC1111/stable-diffusion-webui.git" "${clone_dir}" || { "${GIT}" clone https://mirror.ghproxy.com/https://github.com/AUTOMATIC1111/stable-diffusion-webui.git "${clone_dir}"; }
         clone_dir="${PWD}/${clone_dir}"
     fi
     for file in ./models/*.ckpt
