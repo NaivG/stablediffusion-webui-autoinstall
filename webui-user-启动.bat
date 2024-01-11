@@ -1,5 +1,5 @@
 @echo off
-::◊˜’ﬂ«Ô∑ÁƒœÀ™£¨¥˙¬ÎΩˆπ©—ßœ∞
+::◊˜’ﬂAkinaΩ}£¨¥˙¬ÎΩˆπ©—ßœ∞
 title webui-user
 cd /d %~dp0
 set lng=en
@@ -7,9 +7,13 @@ ver|findstr /r /i "∞Ê±æ" > NUL && set lng=cn
 if "%lng%"=="cn" (
 set installtext=∞≤◊∞
 set updatetext=∏¸–¬
+set gitsource=https://hub.fgit.cf
+set pipsource=-i https://mirror.baidu.com/pypi/simple
 ) else (
 set installtext=Installing
 set updatetext=Updating
+set gitsource=https://github.com
+set pipsource=
 )
 set ESC=
 set RD=%ESC%[31m
@@ -160,7 +164,7 @@ if exist software\python-installer.exe (
        del /q software\python-installer.exe
     )
   )
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out python-installer.exe https://www.python.org/ftp/python/3.10.8/python-3.10.8-amd64.exe
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out python-installer.exe https://www.python.org/ftp/python/3.10.11/python-3.10.11-amd64.exe
 if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% ’˝‘⁄∞≤◊∞python...
     echo %YW%[WARN] %WT% «Îµ»¥˝∞≤◊∞ÕÍ≥…∫Û÷ÿ–¬¥Úø™≥Ã–Ú°£
@@ -187,7 +191,7 @@ if exist software\git-installer.exe (
        del /q software\git-installer.exe
     )
   )
-aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out git-installer.exe https://mirror.ghproxy.com/https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.1/Git-2.39.0-64-bit.exe
+aria2c.exe --max-connection-per-server=16 --min-split-size=1M --dir software --out git-installer.exe %gitsource%/git-for-windows/git/releases/download/v2.43.0.windows.1/Git-2.43.0-64-bit.exe
 if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% ’˝‘⁄∞≤◊∞git...
     echo %YW%[WARN] %WT% «Îµ»¥˝∞≤◊∞ÕÍ≥…∫Û÷ÿ–¬¥Úø™≥Ã–Ú°£
@@ -258,27 +262,31 @@ if "%lng%"=="cn" (
   )
     choice -n -c abc >nul
         if errorlevel == 3 (
-          echo %GN%[INFO] %WT% “——°‘ÒCPU∞Ê±æ°£
+          if "%lng%"=="cn" echo %GN%[INFO] %WT% “——°‘ÒCPU∞Ê±æ°£
+          if "%lng%"=="en" echo %GN%[INFO] %WT% Choosed CPU mode.
           set TORCHVER=CPU
 		  goto :choosenext
         )
         if errorlevel == 2 (
-          echo %GN%[INFO] %WT% “——°‘ÒAMD∞Ê±æ°£
+          if "%lng%"=="cn" echo %GN%[INFO] %WT% “——°‘ÒAMD∞Ê±æ°£
+          if "%lng%"=="cn" echo %GN%[WARN] %WT% ROCM‘⁄Windows…œ≤ªø…”√£°
+          if "%lng%"=="en" echo %GN%[INFO] %WT% Choosed AMD mode.
+          if "%lng%"=="en" echo %GN%[WARN] %WT% NOTE: rocm env is invaild on Windows.
           set TORCHVER=AMD
 		  goto :choosenext
         )
         if errorlevel == 1 (
-          echo %GN%[INFO] %WT% “——°‘ÒNVIDIA£®CUDA£©∞Ê±æ°£
+          if "%lng%"=="cn" echo %GN%[INFO] %WT% “——°‘ÒNVIDIA£®CUDA£©∞Ê±æ°£
+          if "%lng%"=="cn" echo %GN%[WARN] %WT% «Î»∑±£“—æ≠Ã·«∞∞≤◊∞∫√CUDAª∑æ≥£°
+          if "%lng%"=="en" echo %GN%[INFO] %WT% Choosed NVIDIA[CUDA] mode.
+          if "%lng%"=="en" echo %GN%[WARN] %WT% NOTE: Make sure cuda env is installed.
           set TORCHVER=NVIDIA
 		  goto :choosenext
 		  )
 :choosenext
-echo %GN%[INFO] %WT% pulling stable-diffusion-webui[1/2]...
-git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
-if errorlevel 1 (
-echo %GN%[INFO] %WT% pulling stable-diffusion-webui[2/2]...
-git clone https://mirror.ghproxy.com/https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
-)
+echo %GN%[INFO] %WT% pulling stable-diffusion-webui...
+git clone %gitsource%/AUTOMATIC1111/stable-diffusion-webui.git
+if errorlevel 1 set errcode=0x1010 install error & goto :err
 if not exist .\stable-diffusion-webui\launch.py set errcode=0xA001 missing file error & goto :err
 if not exist .\stable-diffusion-webui\webui.py set errcode=0xA002 missing file error & goto :err
 if not exist .\models\*.ckpt echo %YW%[WARN] %WT% ’“≤ªµΩƒ£–ÕŒƒº˛£¨«Î…‘∫Û∑≈÷√°£
@@ -288,23 +296,20 @@ if exist .\models\*.ckpt (
 )
 cd stable-diffusion-webui
 echo %GN%[INFO] %WT% %updatetext% pip,setuptools...
-python -m pip install --upgrade pip setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
+python -m pip install --upgrade pip setuptools %pipsource%
 if errorlevel 1 set errcode=0x1012 install error & goto :err
 echo %GN%[INFO] %WT% %installtext% wheel...
-pip install wheel -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install wheel %pipsource%
 if errorlevel 1 set errcode=0x1013 install error & goto :err
 echo %GN%[INFO] %WT% %installtext% pep517...
-pip install pep517 -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install pep517 %pipsource%
 if errorlevel 1 set errcode=0x1014 install error & goto :err
 echo %GN%[INFO] %WT% %installtext% gdown...
-pip install gdown -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install gdown %pipsource%
 if errorlevel 1 set errcode=0x1015 install error & goto :err
 echo %GN%[INFO] %WT% %installtext% clip...
-pip install clip -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install clip %pipsource%
 if errorlevel 1 set errcode=0x1016 install error & goto :err
-echo %GN%[INFO] %WT% %installtext% gradio3.23...
-pip install gradio==3.23 -i https://mirror.baidu.com/pypi/simple
-if errorlevel 1 set errcode=0x1101 install error & goto :err
 echo %GN%[INFO] %WT% %installtext% pytorch...
 if "%TORCHVER%"=="NVIDIA" goto :TORCHNVIDIA
 if "%TORCHVER%"=="AMD" goto :TORCHAMD
@@ -323,13 +328,13 @@ pip install torch==2.0.1+%cudaver% torchvision --extra-index-url https://downloa
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 if "%cudaver%"=="cu118" (
   echo %GN%[INFO] %WT% %installtext% xformers...
-  pip install xformers==0.0.17 -i https://pypi.tuna.tsinghua.edu.cn/simple
+  pip install xformers %pipsource%
 )
 cd stable-diffusion-webui
 goto :torchnext
 
 :TORCHCPU
-pip install torch torchvision -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install torch torchvision %pipsource%
 if errorlevel 1 set errcode=0x1018 install error on %TORCHVER% & goto :err
 goto :torchnext
 
@@ -342,16 +347,16 @@ goto :torchnext
 
 :torchnext
 echo %GN%[INFO] %WT% %installtext% ‘≠∞Ê“¿¿µ...
-pip install tb-nightly -i https://mirror.baidu.com/pypi/simple
-pip install basicsr==1.4.2 -i https://mirror.baidu.com/pypi/simple
-pip install -r requirements_versions.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+pip install tb-nightly %pipsource%
+pip install basicsr==1.4.2 %pipsource%
+pip install -r requirements_versions.txt %pipsource%
+pip install -r requirements.txt %pipsource%
 if errorlevel 1 set errcode=0x1017 install error & goto :err
 echo %GN%[INFO] %WT% pulling git...
 md repositories
 cd repositories
 echo %GN%[INFO] %WT% pulling DeepDanbooru...
-git clone https://mirror.ghproxy.com/https://github.com/KichangKim/DeepDanbooru.git
+git clone %gitsource%/KichangKim/DeepDanbooru.git
 cd DeepDanbooru
 echo %GN%[INFO] %WT% %installtext% DeepDanbooru...
 python setup.py build
@@ -359,7 +364,7 @@ python setup.py install
 cd ..
 :openclip
 echo %GN%[INFO] %WT% pulling open_clip...
-git clone https://mirror.ghproxy.com/https://github.com/mlfoundations/open_clip.git
+git clone %gitsource%/mlfoundations/open_clip.git
 if not exist .\open_clip\setup.py (
 rd open_clip
 goto :openclip
@@ -383,42 +388,24 @@ ping -n 3 127.1>nul
 goto :openclipinstall
 )
 cd ..
-echo %GN%[INFO] %WT% pulling stable-diffusion[1/2]...
-git clone https://github.com/CompVis/stable-diffusion.git
-if errorlevel 1 (
-echo %GN%[INFO] %WT% pulling stable-diffusion[2/2]...
-git clone https://mirror.ghproxy.com/https://github.com/CompVis/stable-diffusion.git
-)
-echo %GN%[INFO] %WT% pulling stable-diffusion-stability-ai[1/2]...
-git clone https://github.com/Stability-AI/stablediffusion.git stable-diffusion-stability-ai
-if errorlevel 1 (
-echo %GN%[INFO] %WT% pulling stable-diffusion-stability-ai[2/2]...
-git clone https://mirror.ghproxy.com/https://github.com/Stability-AI/stablediffusion.git stable-diffusion-stability-ai
-)
-echo %GN%[INFO] %WT% pulling taming-transformers[1/2]...
-git clone https://github.com/CompVis/taming-transformers.git
-if errorlevel 1 (
-echo %GN%[INFO] %WT% pulling taming-transformers[2/2]...
-git clone https://mirror.ghproxy.com/https://github.com/CompVis/taming-transformers.git
-)
-echo %GN%[INFO] %WT% pulling k-diffusion[1/2]...
-git clone https://github.com/crowsonkb/k-diffusion.git
-if errorlevel 1 (
-echo %GN%[INFO] %WT% pulling k-diffusion[2/2]...
-git clone https://mirror.ghproxy.com/https://github.com/crowsonkb/k-diffusion.git
-)
-echo %GN%[INFO] %WT% pulling CodeFormer[1/2]...
-git clone https://github.com/sczhou/CodeFormer.git
-if errorlevel 1 (
-echo %GN%[INFO] %WT% pulling CodeFormer[2/2]...
-git clone https://mirror.ghproxy.com/https://github.com/sczhou/CodeFormer.git
-)
-echo %GN%[INFO] %WT% pulling BLIP[1/2]...
-git clone https://github.com/salesforce/BLIP.git
-if errorlevel 1 (
-echo %GN%[INFO] %WT% pulling BLIP[2/2]...
-git clone https://mirror.ghproxy.com/https://github.com/salesforce/BLIP.git
-)
+echo %GN%[INFO] %WT% pulling stable-diffusion...
+git clone %gitsource%/CompVis/stable-diffusion.git
+if errorlevel 1 set errcode=0x1018 install error & goto :err
+echo %GN%[INFO] %WT% pulling stable-diffusion-stability-ai...
+git clone %gitsource%/Stability-AI/stablediffusion.git stable-diffusion-stability-ai
+if errorlevel 1 set errcode=0x1019 install error & goto :err
+echo %GN%[INFO] %WT% pulling taming-transformers...
+git clone %gitsource%/CompVis/taming-transformers.git
+if errorlevel 1 set errcode=0x1020 install error & goto :err
+echo %GN%[INFO] %WT% pulling k-diffusion...
+git clone %gitsource%/crowsonkb/k-diffusion.git
+if errorlevel 1 set errcode=0x1021 install error & goto :err
+echo %GN%[INFO] %WT% pulling CodeFormer...
+git clone %gitsource%/sczhou/CodeFormer.git
+if errorlevel 1 set errcode=0x1022 install error & goto :err
+echo %GN%[INFO] %WT% pulling BLIP...
+git clone %gitsource%/salesforce/BLIP.git
+if errorlevel 1 set errcode=0x1023 install error & goto :err
 cd ..
 echo %GN%[INFO] %WT% ≥¢ ‘‘À––‘≠∞ÊΩ≈±æ[1/2]...
 set INDEX_URL="https://pypi.tuna.tsinghua.edu.cn/simple"
@@ -438,13 +425,13 @@ if "%lng%"=="cn" (
     echo %GN%[INFO] %WT% «Î—°‘Ò‘§÷√∆Ù∂Ø≤Œ ˝
     echo       a.∆’Õ®œ‘ø®£®Œﬁ≤Œ£©
     echo       b.∆’Õ®œ‘ø®£®promptŒﬁœﬁ÷∆£©
-    echo       c.ΩˆCPU£¨µ´ «”–œ‘ø®£®4Gº∞“‘œ¬œ‘¥Ê£©
+    echo       c.µÕ≈‰œ‘ø®£®4Gº∞“‘œ¬œ‘¥Ê£©
     echo       d.ΩˆCPU
   ) else (
     echo %GN%[INFO] %WT% Choose COMMANDLINE_ARGS
     echo       a.gfx card[none]
     echo       b.gfx card[no half]
-    echo       c.CPU[normally this is invalid]
+    echo       c.gfx card[vram is 6G or less]
     echo       d.only CPU
   )
     choice -n -c abcd >nul
@@ -454,7 +441,7 @@ if "%lng%"=="cn" (
           goto :argsnext
 )
         if errorlevel == 3 (
-          echo %GN%[INFO] %WT% “——°‘ÒΩˆCPU£¨µ´ «”–œ‘ø®£®4Gº∞“‘œ¬œ‘¥Ê£©°£
+          echo %GN%[INFO] %WT% “——°‘ÒµÕ≈‰œ‘ø®£®6Gº∞“‘œ¬œ‘¥Ê£©°£
           set method=3
           goto :argsnext
  )
